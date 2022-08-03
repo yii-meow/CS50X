@@ -13,8 +13,7 @@ Product Details
     </div>
 
     <div class="p-3">
-        <h3 class="" style="max-width:400px;text-align:left">{{product[2]}}jkjkjkjkjkkkjjkjkjk jkjkjk
-            kkjjkjkjkjkjkjkkkjjk</h3>
+        <h3 class="" style="max-width:400px;text-align:left">{{product[2]}}</h3>
 
         <div class="d-flex gap-4 mt-4">
 
@@ -42,19 +41,24 @@ Product Details
 
             <div style="margin-left:30px;display:flex;">
                 <div style="border:1px solid white;padding:8px;font-size:15px;">-</div>
-                <input name="quantity" type="numeric" value="0" style="width:50px;margin-left:10px;margin-right:10px;text-align:center;">
+                <input name="quantity" type="numeric" value="0"
+                       style="width:50px;margin-left:10px;margin-right:10px;text-align:center;">
                 <div style="border:1px solid white;padding:8px;font-size:15px;">+</div>
             </div>
         </div>
 
         <div class="d-flex gap-5 mt-5" style="font-size:1.15rem">
 
-            <div class="border border-danger rounded p-3" style="background-color:#AD7A99;padding:5px 0" onclick="">
-                <span style="display:flex;align-items: center"><i class="bi bi-cart-fill"
-                                                                  style="font-size:1.5rem;margin-right:10px;"></i>Add To Cart</span>
+            <div class="border border-danger rounded p-3 d-flex align-items-center" style="background-color:#AD7A99;"
+                 onclick="">
+                <span style="display:flex;align-items: center">
+                    <i class="bi bi-cart-fill" style="font-size:1.5rem;margin-right:10px;"></i>
+                    Add To Cart
+                </span>
             </div>
 
-            <div class="border border-danger rounded p-3" style="background-color:#AD7A99;" onclick="">
+            <div class="border border-danger rounded p-3 d-flex align-items-center" style="background-color:#AD7A99;"
+                 onclick="">
                 Buy Now
             </div>
 
@@ -66,7 +70,9 @@ Product Details
 <div class="p-4 d-flex gap-5 justify-content-center mt-5">
 
     <div class="d-flex gap-3" style="padding-right:50px;border-right:1px solid white;">
-        <img src="../static/pic/1638157275081.jpg" style="width:9rem;height:9rem;" class="border rounded-circle">
+        <div style="width:150px;">
+            <img src="../static/pic/1638157275081.jpg" style="width:8rem;height:8rem;" class="border rounded-circle">
+        </div>
 
         <div style="text-align:left">
             <p>yiyistore</p>
@@ -169,7 +175,7 @@ Product Details
         <h5>Product Description</h5>
     </div>
 
-    <article class="mt-5" style="text-align:left;line-height: 40px;">
+    <article style="text-align:left;line-height: 40px;">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam et vestibulum arcu. Maecenas dignissim tincidunt
         luctus. Vestibulum in urna non sapien ultricies varius. Nunc efficitur felis eget eleifend vulputate. Sed tempus
         eleifend luctus. Vestibulum malesuada neque sit amet enim malesuada auctor. Vivamus eleifend sagittis ipsum et
@@ -206,6 +212,126 @@ Product Details
         viverra massa ac sagittis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus
         mus.
     </article>
+</div>
+
+<!-- Product Ratings -->
+<div class="mt-3 p-5">
+    <div class="mb-5" style="text-align:left">
+        <h5>Product Ratings</h5>
+    </div>
+
+    <div class="d-flex align-items-center" style="background-color:#ee9696;width:auto">
+        <div class="d-flex no-wrap p-4" style="vertical-align:text-top;">
+            <div>
+                <div class="d-flex no-wrap gap-2 align-items-baseline justify-content-center">
+                    <h1>5</h1>
+                    <h5>out of 5</h5>
+                </div>
+
+                <div class="mt-1">
+                    <div class="d-flex">
+                        {% for i in range(5) %}
+                        <i class="bi bi-star-fill" style="font-size:25px;color:red;"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4"
+             style="display:grid;grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;column-gap:0.5rem;row-gap:1rem;font-size:13px;">
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                All
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                5 Star (218)
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                4 Star (9)
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                3 Star (1)
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                2 Star (2)
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                1 Star (0)
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                With Comments (76)
+            </div>
+
+            <div class="p-1 border d-flex justify-content-center align-items-center">
+                With Media (65)
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Rating -->
+<div class="d-flex flex-wrap gap-5">
+    <div class="d-flex gap-3 border-bottom" style="padding-left:50px;padding-bottom: 1rem">
+        <div style="width:200px;text-align: left">
+            <img src="../static/pic/1638157275081.jpg" style="width:6rem;height:6rem;" class="border rounded-circle">
+        </div>
+
+        <div class="d-flex">
+            <div style="text-align: left">
+                <p style="text-align: left;">&nbsp;w*****n</p>
+                <div class="d-flex my-3">
+                    {% for i in range(5) %}
+                    <i class="bi bi-star-fill" style="font-size:14px;color:red"></i>
+                    {% endfor %}
+                </div>
+
+                <small>&nbsp;2022-07-12 11:54</small>
+
+                <p class="mt-4" style="line-height: 35px;">
+                    &nbsp;it fits perfectly and FYI the waist area is stretchy type! so anyone which has a size of 28-29
+                    will
+                    surely fit this. and the material of the skirt is tiptop too, its thin and perfect for hot weather
+                    but
+                    its not sheer to a point its see through
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="d-flex gap-3 border-bottom" style="padding-left:50px;padding-bottom: 1rem">
+        <div style="width:200px;text-align: left">
+            <img src="../static/pic/1638157275081.jpg" style="width:6rem;height:6rem;" class="border rounded-circle">
+        </div>
+
+        <div class="d-flex">
+            <div style="text-align: left">
+                <p style="text-align: left;">&nbsp;w*****n</p>
+                <div class="d-flex my-3">
+                    {% for i in range(5) %}
+                    <i class="bi bi-star-fill" style="font-size:14px;color:red"></i>
+                    {% endfor %}
+                </div>
+
+                <small>&nbsp;2022-07-12 11:54</small>
+
+                <p class="mt-4" style="line-height: 35px;">
+                    &nbsp;it fits perfectly and FYI the waist area is stretchy type! so anyone which has a size of 28-29
+                    will
+                    surely fit this. and the material of the skirt is tiptop too, its thin and perfect for hot weather
+                    but
+                    its not sheer to a point its see through
+                </p>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 
