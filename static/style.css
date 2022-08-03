@@ -31,3 +31,10 @@ i {
     width: 25rem;
 }
 
+.product_spec tr{
+    line-height: 55px;
+}
+
+.product_spec th{
+    width:250px;
+}
