@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Shop
+{% endblock %}
+
+{% block main %}
+
+{% if items %}
+
+<div class="container d-flex flex-wrap gap-5">
+    {% for item in items %}
+    <div class="card text-white" style="width: 14rem;height:22rem;background-color:#CE7DA5">
+        <img class="card-img-top" src="../static/pic/1638157275081.jpg" alt="Card image cap"
+             style="width:14rem;height:13rem">
+        <div class="card-body">
+            <h5 class="card-title">{{item[2]}}</h5>
+            <p class="card-text">
+                {{item[4]}}
+            </p>
+            <p class="card-text">
+                {{item[3] | myr }}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<h2 id="no_result">No Result Found !</h2>
+
+{% endif %}
+
+{% endblock %}

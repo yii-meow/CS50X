@@ -1,0 +1,33 @@
+* {
+    font-family: 'Mochiy Pop One', sans-serif;
+}
+
+/*7C616C*/
+body {
+    color: white;
+    background-color: #2B2D42;
+}
+
+.nav-item {
+    font-size: 15px;
+    margin-left: 20px;
+}
+
+i {
+    color: #441151;
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.dropdown-menu {
+    font-size: 12px;
+}
+
+#no_result {
+    color: red;
+}
+
+.product_img {
+    width: 25rem;
+}
+
