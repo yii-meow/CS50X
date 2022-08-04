@@ -113,26 +113,20 @@ def login():
     return render_template("login.html")
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @require_login
 def index():
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM products")
-    items = cursor.fetchall()
-
-    return render_template("index.html", items=items)
-
-
-@app.route("/shop", methods=["GET", "POST"])
-@require_login
-def shop():
     if request.method == "POST":
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM products WHERE name LIKE %s", ("%" + request.form.get("search_product") + "%",))
         items = cursor.fetchall()
-        return render_template("shop.html", items=items)
 
-    return render_template("search.html")
+    else:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM products")
+        items = cursor.fetchall()
+
+    return render_template("index.html", items=items)
 
 
 # Display Full Information of the item
@@ -182,15 +176,55 @@ def cart():
     return render_template("cart.html", items_in_cart=items_in_cart)
 
 
-@app.route("/voucher")
+@app.route("/voucher", methods=["GET", "POST"])
 def voucher():
-    return render_template("voucher.html", vouchers="")
+    if request.method == "POST":
+        id = int(request.form.get("id"))
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM vouchers WHERE id = '%s'" % (id))
+        voucher = cursor.fetchone()
+
+        # Check validity of voucher
+        if not voucher:
+            return err("Invalid Voucher", 400)
+
+        # Avoid duplicated voucher
+        cursor.execute(
+            "SELECT * FROM user_vouchers WHERE user_id = '%s' AND voucher_id = '%s'" % (session["user_id"], id))
+
+        redeemed_voucher = cursor.fetchone()
+
+        if redeemed_voucher:
+            return err("You have redeemed this voucher", 400)
+
+        cursor.execute("INSERT INTO user_vouchers (user_id,voucher_id) VALUES (%s,%s)" % (session["user_id"], id,))
+
+        mysql.connection.commit()
+
+        message = "Successfully Redeemed Voucher ID: " + str(id) + "."
+
+        cursor.execute("INSERT INTO notifications (user_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
+            session["user_id"], "Redeem Voucher", message, datetime.datetime.now(),))
+
+        mysql.connection.commit()
+
+        flash("Redeem Voucher Successfully!")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+    SELECT * FROM vouchers WHERE start_date <= '%s' AND end_date >= '%s'
+    AND NOT id IN (SELECT voucher_id FROM user_vouchers WHERE user_id = '%s')
+    """ % (
+        datetime.datetime.now(), datetime.datetime.now(), session["user_id"]))
+    vouchers = cursor.fetchall()
+
+    return render_template("voucher.html", vouchers=vouchers)
 
 
 @app.route("/notification")
 def notification():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM notifications WHERE user_id = %s ORDER BY time", (session["user_id"],))
+    cursor.execute("SELECT * FROM notifications WHERE user_id = %s ORDER BY notify_time DESC", (session["user_id"],))
     notifications = cursor.fetchall()
     return render_template("notification.html", notifications=notifications)
 

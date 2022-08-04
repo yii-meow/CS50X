@@ -6,8 +6,55 @@ Sign In
 
 {% block main %}
 
+<h2>Vouchers</h2>
 
+{% if voucher %}
+<div class="d-flex flex-wrap justify-content-center">
+    {% for voucher in vouchers %}
+    <div class="p-4">
+        <div class="d-flex border" style="width:600px;">
+            <div class="px-4 py-5 d-flex align-items-center"
+                 style="border-right:1px solid white;background-color: #75b775">
+                <p style="width:150px;line-height:40px;font-size:20px;">
+                    {% if voucher[1] %}
+                    FREE SHIPPING
+                    {% elif voucher[2] %}
+                    {{voucher[4]}} % OFF
+                    {% else %}
+                    {{voucher[4]|myr}} OFF
+                    {% endif %}
+                </p>
+            </div>
 
+            <div class="p-3" style="text-align:left;background-color: white;width:300px;color:black;">
+                <h3>All Seller</h3>
+                <p class="mt-4">
+                    {% if voucher[2] %}
+                    {{voucher[4]}}%
+                    {% else %}
+                    {{voucher[4]|myr}}
+                    {% endif %}
+                    OFF
+                </p>
+                <div style="border:1px solid red;padding:8px;margin-top:15px;border-radius:10px;width:260px;text-align: center">
+                    Min. Spend {{voucher[3]|myr}}
+                </div>
+                <p class="mt-4">Valid till {{voucher[6].strftime("%d %b")}}</p>
+            </div>
 
+            <div class="p-3" style="background-color: red;width:100px;color:black;display:flex;align-items: center">
+                <form action="/voucher" method="POST">
+                    <input type="hidden" name="id" value="{{voucher[0]}}">
+                    <button type="submit">Claim</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
 
+<h4 class="mt-5 text-danger">No Voucher Available</h4>
+
+{% endif %}
 {% endblock %}
