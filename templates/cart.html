@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Cart
+{% endblock %}
+
+{% block main %}
+{% set total = 0 %}
+<div class="p-2 d-flex flex-wrap justify-content-center gap-4 border" style="background-color: #ec8bba">
+    {% for item in items_in_cart %}
+
+    <div class="py-2 d-flex gap-2 align-items-center" style="width:900px;">
+        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" style="font-size:20px;margin-right:10px;">
+        <!-- Product Name and Image -->
+        <div class="d-flex gap-3" style="width:300px;">
+            <img src="/static/pic/1638157275081.jpg" style="width:80px;height:80px;"/>
+            <p style="text-align: left">{{item[2]}}</p>
+        </div>
+
+        <div style="width:130px;text-align: left">
+            <!-- Price -->
+            {{item[3]|myr}}
+        </div>
+
+        <div style="width:200px">
+            <!-- Quantity -->
+            <div style="margin-left:30px;display:flex;color:black;">
+                <div style="border:1px solid white;padding:8px;width:30px;font-size:15px;background-color: white">-
+                </div>
+                <input name="quantity" type="numeric" value="{{session['cart'][item[0]|string]}}"
+                       style="width:50px;margin-left:10px;margin-right:10px;text-align:center;background-color: white">
+                <div style="border:1px solid white;padding:8px;font-size:15px;width:30px;background-color: white">+
+                </div>
+            </div>
+        </div>
+
+        <div style="width:150px;text-align: left">
+            <!-- Total Price -->
+            {{
+            (session["cart"][item[0]|string] * item[3])|myr
+            }}
+            {% set total = total + 5 %}
+        </div>
+
+        <!-- Delete Btn -->
+        <button class="d-flex justify-content-center" style="width:50px;border: none;background-color: transparent">
+            <i class="bi bi-trash-fill" style="color:#8f0000;font-size:23px;"></i>
+        </button>
+
+    </div>
+
+    {% endfor %}
+</div>
+
+<div class="mt-3 p-3" style="text-align:right;">
+    Subtotal : RM 700.00 {{total}}
+    <button class="p-2 bg-danger" style="margin-left:10px;">Checkout</button>
+</div>
+
+
+{% endblock %}

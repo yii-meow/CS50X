@@ -146,6 +146,35 @@ def item(id):
     return render_template("product.html", product=product)
 
 
+@app.route("/cart", methods=["GET", "POST"])
+@require_login
+def cart():
+    # Check if cart exists in session
+    if "cart" not in session:
+        # session["cart"] = []
+        session["cart"] = {}
+
+    # Add item to cart
+    if request.method == "POST":
+        id = (request.form.get("id"))
+        if id:
+            if id in session["cart"]:
+                session["cart"][id] += int(request.form.get("quantity"))
+            else:
+                session["cart"][id] = int(request.form.get("quantity"))
+        return redirect("/cart")
+
+    cursor = mysql.connection.cursor()
+
+    # Should change this to tuple to avoid sql injection, but no idea
+    sql = """SELECT * FROM items where id in (""" + ",".join(list(session["cart"])) + """)"""
+    cursor.execute(sql)
+
+    items_in_cart = cursor.fetchall()
+
+    return render_template("cart.html", items_in_cart=items_in_cart)
+
+
 @app.route("/logout")
 def logout():
     session.clear()

@@ -36,34 +36,38 @@ Product Details
             {{product[3] | myr}}
         </div>
 
-        <div class="d-flex no-wrap mt-5" style="align-items:center">
-            <h6>Quantity :</h6>
+        <form action="/cart" method="POST">
+            <div class="d-flex no-wrap mt-5" style="align-items:center">
+                <h6>Quantity :</h6>
 
-            <div style="margin-left:30px;display:flex;">
-                <div style="border:1px solid white;padding:8px;font-size:15px;">-</div>
-                <input name="quantity" type="numeric" value="0"
-                       style="width:50px;margin-left:10px;margin-right:10px;text-align:center;">
-                <div style="border:1px solid white;padding:8px;font-size:15px;">+</div>
+                <div style="margin-left:30px;display:flex;">
+                    <div style="border:1px solid white;padding:8px;font-size:15px;">-</div>
+                    <input name="quantity" type="numeric" value="0"
+                           style="width:50px;margin-left:10px;margin-right:10px;text-align:center;">
+                    <div style="border:1px solid white;padding:8px;font-size:15px;">+</div>
+                </div>
             </div>
-        </div>
 
-        <div class="d-flex gap-5 mt-5" style="font-size:1.15rem">
+            <div class="d-flex gap-5 mt-5" style="font-size:1.15rem">
 
-            <div class="border border-danger rounded p-3 d-flex align-items-center" style="background-color:#AD7A99;"
-                 onclick="">
-                <span style="display:flex;align-items: center">
+                <input type="hidden" name="id" value="{{product[0]}}">
+                <button class="border border-danger rounded p-3 d-flex align-items-center"
+                        type="submit" style="background-color:#AD7A99;color:white;">
                     <i class="bi bi-cart-fill" style="font-size:1.5rem;margin-right:10px;"></i>
                     Add To Cart
-                </span>
-            </div>
+                </button>
 
-            <div class="border border-danger rounded p-3 d-flex align-items-center" style="background-color:#AD7A99;"
-                 onclick="">
-                Buy Now
-            </div>
 
-        </div>
+                <div class="border border-danger rounded p-3 d-flex align-items-center"
+                     style="background-color:#AD7A99;"
+                     onclick="">
+                    Buy Now
+                </div>
+
+            </div>
+        </form>
     </div>
+
 </div>
 
 <!--Seller Information-->
@@ -158,12 +162,17 @@ Product Details
 
         <tr>
             <th>Total Stock</th>
-            <td>100</td>
+            <td>{{product[5]}}</td>
         </tr>
 
         <tr>
             <th>Location</th>
             <td>Selangor</td>
+        </tr>
+
+        <tr>
+            <th>Release Date</th>
+            <td>{{product[8]}}</td>
         </tr>
 
     </table>
@@ -240,35 +249,35 @@ Product Details
 
         <div class="p-4"
              style="display:grid;grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;column-gap:0.5rem;row-gap:1rem;font-size:13px;">
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 All
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 5 Star (218)
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 4 Star (9)
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 3 Star (1)
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 2 Star (2)
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 1 Star (0)
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 With Comments (76)
             </div>
 
-            <div class="p-1 border d-flex justify-content-center align-items-center">
+            <div class="p-1 border bg-dark d-flex justify-content-center align-items-center">
                 With Media (65)
             </div>
         </div>
