@@ -8,7 +8,7 @@ Cart
 
 <!--Calculate subtotal-->
 {% if items_in_cart %}
-<div class="p-2 d-flex flex-wrap justify-content-center gap-4 border" style="background-color: #d3b0bf">
+<div class="p-2 d-flex flex-wrap justify-content-center gap-3" style="background-color: #a68394;border:2px solid white;">
     {% for item in items_in_cart %}
 
     <div class="py-2 d-flex gap-2 align-items-center" style="width:900px;">
@@ -16,7 +16,7 @@ Cart
                style="font-size:20px;margin-right:10px;">
         <!-- Product Name and Image -->
         <div class="d-flex gap-3" style="width:500px;">
-            <img src="{{item[5]}}" style="width:150px;height:150px;"
+            <img src="{{item[5]}}" style="width:135px;height:135px;"
                  onclick="window.open('/items/{{item[0]}}')"/>
             <p style="text-align: left">{{item[2]}}</p>
         </div>
@@ -45,6 +45,7 @@ Cart
     </div>
 
     {% endfor %}
+
 </div>
 
 <div class="mt-3 p-3" style="text-align:right;">
