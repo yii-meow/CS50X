@@ -117,7 +117,7 @@ def login():
 @require_login
 def index():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM items")
+    cursor.execute("SELECT * FROM products")
     items = cursor.fetchall()
 
     return render_template("index.html", items=items)
@@ -128,7 +128,7 @@ def index():
 def shop():
     if request.method == "POST":
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM items WHERE name LIKE %s", ("%" + request.form.get("search_product") + "%",))
+        cursor.execute("SELECT * FROM products WHERE name LIKE %s", ("%" + request.form.get("search_product") + "%",))
         items = cursor.fetchall()
         return render_template("shop.html", items=items)
 
@@ -140,7 +140,7 @@ def shop():
 @require_login
 def item(id):
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM items WHERE id = %s", str(id), )
+    cursor.execute("SELECT * FROM products WHERE id = %s", str(id), )
     product = cursor.fetchone()
 
     return render_template("product.html", product=product)
@@ -153,6 +153,8 @@ def cart():
     if "cart" not in session:
         # session["cart"] = []
         session["cart"] = {}
+        flash("No item in your cart")
+        return render_template("cart.html")
 
     # Add item to cart
     if request.method == "POST":
@@ -164,15 +166,65 @@ def cart():
                 session["cart"][id] = int(request.form.get("quantity"))
         return redirect("/cart")
 
+    # Check if cart is empty
+    if len(session["cart"]) == 0:
+        flash("No item in your cart")
+        return render_template("cart.html")
+
     cursor = mysql.connection.cursor()
 
     # Should change this to tuple to avoid sql injection, but no idea
-    sql = """SELECT * FROM items where id in (""" + ",".join(list(session["cart"])) + """)"""
+    sql = """SELECT * FROM products where id in (""" + ",".join(list(session["cart"])) + """)"""
     cursor.execute(sql)
 
     items_in_cart = cursor.fetchall()
 
     return render_template("cart.html", items_in_cart=items_in_cart)
+
+
+@app.route("/voucher")
+def voucher():
+    return render_template("voucher.html", vouchers="")
+
+
+@app.route("/notification")
+def notification():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM notifications WHERE user_id = %s ORDER BY time", (session["user_id"],))
+    notifications = cursor.fetchall()
+    return render_template("notification.html", notifications=notifications)
+
+
+@app.route("/chat")
+def chat():
+    chats = ""
+
+    return render_template("chat.html", chats="")
+
+
+@app.route("/ratings")
+def ratings():
+    return render_template("ratings.html", purchases="")
+
+
+@app.route("/purchase-history")
+def purchase_history():
+    return render_template("purchase-history.html", purchases="")
+
+
+@app.route("/wallet")
+def wallet():
+    return render_template("wallet.html", wallet="")
+
+
+@app.route("/settings")
+def settings():
+    return render_template("settings.html", settings="")
+
+
+@app.route("/change-password")
+def change_password():
+    return render_template("change-password.html")
 
 
 @app.route("/logout")

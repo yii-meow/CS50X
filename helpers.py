@@ -1,7 +1,6 @@
 from flask import render_template, request, session, redirect
 from functools import wraps
 
-
 def err(message, code=400):
     def escape(s):
         for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),

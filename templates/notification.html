@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Notification
+{% endblock %}
+
+{% block main %}
+
+<div class="timeline">
+    {% for notification in notifications %}
+    <div class="p4 d-flex flex-wrap gap-5" style="margin-left:80px;">
+        <div class="content p-2 d-flex gap-3 align-items-center">
+            <div style="margin-right:50px;">
+                {{notification[4]}}
+            </div>
+
+            <img src="../static/pic/1638157275081.jpg" style="width:70px;height:70px;"/>
+            <div style="width:550px;text-align: left;font-size:18px;">
+                <div>
+                    <!-- Notification Title -->
+                    <small>{{notification[2]}}</small>
+                </div>
+                <div class="mt-2">
+                    <!-- Notification Content -->
+                    <small>{{notification[3]}}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

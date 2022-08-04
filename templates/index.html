@@ -6,18 +6,15 @@ Home Page
 
 {% block main %}
 <h2>Welcome to Yimmerce</h2>
-<div class="container d-flex flex-wrap gap-3" style="margin-top:2rem;">
+<div class="container d-flex flex-wrap gap-5" style="margin-top:2rem;">
     {% for item in items %}
-    <div class="card text-white" style="width: 14rem;height:22rem;background-color:#CE7DA5"
+    <div class="card text-white" style="width: 15rem;height:22rem;background-color:#CE7DA5"
          onclick="window.open('/items/{{item[0]}}')">
-        <img class="card-img-top" src="../static/pic/1638157275081.jpg" alt="Card image cap"
-             style="width:14rem;height:13rem">
+        <img class="card-img-top" src="{{item[5]}}" alt="Card image cap"
+             style="width:15rem;height:16rem">
         <div class="card-body">
             <h5 class="card-title">{{item[2]}}</h5>
-            <p class="card-text">
-                {{item[4]}}
-            </p>
-            <p class="card-text">
+            <p class="card-text mt-3">
                 {{item[3] | myr }}
             </p>
         </div>
