@@ -138,7 +138,11 @@ def index():
 @require_login
 def item(id):
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM products WHERE id = %s", str(id), )
+    cursor.execute("""
+    SELECT products.id, name,price,description,image,quantity,release_date,sellers.username,sellers.address FROM products
+    JOIN sellers ON products.seller_id = sellers.id
+    WHERE products.id = %s
+    """ % str(id), )
     product = cursor.fetchone()
     cursor.close()
 

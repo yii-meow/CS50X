@@ -9,11 +9,11 @@ Product Details
 <!--Product Main Information-->
 <div class="d-flex gap-5 justify-content-center p-4">
     <div>
-        <img src="{{product[5]}}" class="product_img"/>
+        <img src="{{product[4]}}" class="product_img"/>
     </div>
 
     <div class="p-3">
-        <h3 class="" style="max-width:400px;text-align:left">{{product[2]}}</h3>
+        <h3 class="" style="max-width:400px;text-align:left">{{product[1]}}</h3>
 
         <div class="d-flex gap-4 mt-4">
 
@@ -33,7 +33,7 @@ Product Details
         </div>
 
         <div class="bg-secondary mt-4 px-3" style="height:50px;font-size:25px;display:flex;align-items: center">
-            {{product[3] | myr}}
+            {{product[2] | myr}}
         </div>
 
         <form action="/cart" method="POST">
@@ -79,7 +79,7 @@ Product Details
         </div>
 
         <div style="text-align:left">
-            <p>yiyistore</p>
+            <p>{{product[7]}}</p>
             <small>Active 51 Minutes Ago</small>
             <div class="d-flex gap-3 mt-3" style="font-size:0.7rem;">
                 <div class="border border-danger rounded p-2" style="background-color:#AD7A99;" onclick="">
@@ -162,7 +162,7 @@ Product Details
 
         <tr>
             <th>Total Stock</th>
-            <td>{{product[6]}}</td>
+            <td>{{product[5]}}</td>
         </tr>
 
         <tr>
@@ -172,7 +172,7 @@ Product Details
 
         <tr>
             <th>Release Date</th>
-            <td>{{product[8]}}</td>
+            <td>{{product[6]}}</td>
         </tr>
 
     </table>
@@ -184,42 +184,8 @@ Product Details
         <h5>Product Description</h5>
     </div>
 
-    <article style="text-align:left;line-height: 40px;">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam et vestibulum arcu. Maecenas dignissim tincidunt
-        luctus. Vestibulum in urna non sapien ultricies varius. Nunc efficitur felis eget eleifend vulputate. Sed tempus
-        eleifend luctus. Vestibulum malesuada neque sit amet enim malesuada auctor. Vivamus eleifend sagittis ipsum et
-        pellentesque. Duis mi enim, congue ut rutrum in, pretium at libero. Sed purus sapien, imperdiet aliquam nibh
-        quis, venenatis sodales augue. Nulla tempor eros quis nisl auctor volutpat. Suspendisse efficitur diam venenatis
-        mauris efficitur vulputate. Quisque nec neque a turpis hendrerit faucibus nec vitae leo. Maecenas felis erat,
-        consequat in luctus sed, facilisis ac nunc.
-
-        Vestibulum malesuada auctor ex, a hendrerit neque vulputate id. Nullam ligula orci, eleifend et nulla ut,
-        consectetur auctor purus. Praesent efficitur accumsan interdum. Suspendisse suscipit iaculis ipsum, aliquam
-        semper nisl dictum vel. Nullam tincidunt sagittis finibus. Nulla tempus molestie nisl, eu iaculis nisl commodo
-        at. Praesent vel eros fermentum, aliquam metus id, tempor augue. Mauris ultricies viverra neque, nec mollis
-        lectus tempus id. Etiam nec nibh interdum, pretium nisl non, luctus ante. Sed a nibh ac ipsum vehicula bibendum.
-        Donec non eleifend nibh, quis mattis ex.
-
-        Donec non placerat lectus, sed vulputate velit. Nam et lacus quis ante aliquet tincidunt sed eu orci. Donec
-        tortor velit, pulvinar bibendum euismod nec, mattis a tortor. Nam sit amet libero consequat felis volutpat
-        rutrum id non diam. Praesent et arcu non erat consectetur posuere nec a nibh. Nunc vitae nulla risus. Vivamus
-        non laoreet magna, at auctor ante. Suspendisse at elit sapien. Mauris erat mauris, ultrices et turpis eget,
-        fermentum fermentum quam. Nam porttitor consequat urna non aliquam.
-
-        Vestibulum laoreet vulputate consectetur. Pellentesque tristique justo eu feugiat euismod. Sed iaculis quis
-        massa et tristique. Nam at purus interdum, gravida justo in, convallis lectus. Sed elementum nisl porta blandit
-        rhoncus. Pellentesque nec dui eu sem tincidunt accumsan. Nullam at feugiat mauris. Donec iaculis felis erat, nec
-        egestas massa maximus in. Nulla a ligula a lacus aliquet luctus. Proin a purus vel nisl pretium sollicitudin ac
-        vitae ipsum. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-        Aenean euismod nec ligula a laoreet. Suspendisse elementum dolor metus, eu maximus tortor pulvinar quis. Aliquam
-        erat volutpat. Integer in lorem ligula. Fusce ultrices pretium sapien porttitor dignissim.
-
-        Aliquam gravida mattis ante. Nulla quis justo elit. Nulla sed risus faucibus diam sagittis mattis in ut eros.
-        Integer et nulla viverra, fringilla dolor nec, ultricies ipsum. Donec faucibus neque nunc, et vehicula odio
-        blandit in. Nulla vestibulum lobortis turpis et ullamcorper. In luctus sapien non nisi rutrum, porta finibus est
-        elementum. Maecenas ex est, interdum id condimentum a, tempus nec tellus. Nulla eu ante sapien. Mauris dictum
-        viverra massa ac sagittis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus
-        mus.
+    <article style="text-align:left;line-height: 40px;min-height:50vh">
+        {{product[3]}}
     </article>
 </div>
 
