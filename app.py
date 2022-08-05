@@ -78,6 +78,7 @@ def register():
             value)
 
         mysql.connection.commit()
+        cursor.close()
 
         # redirect page
         flash("Register Successfully!")
@@ -100,6 +101,7 @@ def login():
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE username = %s", (request.form.get("username"),))
         user = cursor.fetchone()
+        cursor.close()
 
         # Check password matching
         if not user or not check_password_hash(user[2], request.form.get("password")):
@@ -126,6 +128,8 @@ def index():
         cursor.execute("SELECT * FROM products")
         items = cursor.fetchall()
 
+    cursor.close()
+
     return render_template("index.html", items=items)
 
 
@@ -136,6 +140,7 @@ def item(id):
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM products WHERE id = %s", str(id), )
     product = cursor.fetchone()
+    cursor.close()
 
     return render_template("product.html", product=product)
 
@@ -170,13 +175,59 @@ def cart():
     # Should change this to tuple to avoid sql injection, but no idea
     sql = """SELECT * FROM products where id in (""" + ",".join(list(session["cart"])) + """)"""
     cursor.execute(sql)
-
     items_in_cart = cursor.fetchall()
+    cursor.close()
 
     return render_template("cart.html", items_in_cart=items_in_cart)
 
 
+@app.route("/checkout", methods=["POST"])
+@require_login
+def checkout():
+    cursor = mysql.connection.cursor()
+
+    ids = request.form.getlist("id[]")
+    product = request.form.getlist("quantity[]")
+
+    sql = """SELECT * FROM products where id in (""" + ",".join(list(ids)) + """)"""
+    cursor.execute(sql)
+    prod_checksum = cursor.fetchall()
+
+    # Invalid Item ID
+    if len(prod_checksum) != len(ids):
+        return err("Invalid Item ID", 400)
+
+    # Invalid Quantity
+    for i in range(len(ids)):
+        if int(product[i]) <= 0:
+            return err("Invalid Quantity of Item", 400)
+
+    # After Successful Payment
+
+    # Create New Order
+    cursor.execute(
+        "INSERT INTO orders (user_id, order_time) VALUES (%s,%s)", (session["user_id"], datetime.datetime.now(),))
+
+    # Retrieve Newly Generated Order ID
+    order_id = cursor.lastrowid
+
+    mysql.connection.commit()
+
+    # order_lists = {}
+    # order_lists["id"] = order_id
+
+    # Record Order Lists for the Order
+    for i in range(len(ids)):
+        cursor.execute("INSERT INTO order_lists (order_id,product_id,quantity,subtotal) VALUES (%s,%s,%s,%s)",
+                       (order_id))
+
+        # order_lists[int(ids[i])] = int(product[i])
+
+    return render_template("test.html", test="")
+
+
 @app.route("/voucher", methods=["GET", "POST"])
+@require_login
 def voucher():
     if request.method == "POST":
         id = int(request.form.get("id"))
@@ -207,6 +258,7 @@ def voucher():
             session["user_id"], "Redeem Voucher", message, datetime.datetime.now(),))
 
         mysql.connection.commit()
+        cursor.close()
 
         flash("Redeem Voucher Successfully!")
 
@@ -217,19 +269,23 @@ def voucher():
     """ % (
         datetime.datetime.now(), datetime.datetime.now(), session["user_id"]))
     vouchers = cursor.fetchall()
+    cursor.close()
 
     return render_template("voucher.html", vouchers=vouchers)
 
 
 @app.route("/notification")
+@require_login
 def notification():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM notifications WHERE user_id = %s ORDER BY notify_time DESC", (session["user_id"],))
     notifications = cursor.fetchall()
+    cursor.close()
     return render_template("notification.html", notifications=notifications)
 
 
 @app.route("/chat")
+@require_login
 def chat():
     chats = ""
 
@@ -237,31 +293,37 @@ def chat():
 
 
 @app.route("/ratings")
+@require_login
 def ratings():
     return render_template("ratings.html", purchases="")
 
 
 @app.route("/purchase-history")
+@require_login
 def purchase_history():
     return render_template("purchase-history.html", purchases="")
 
 
 @app.route("/wallet")
+@require_login
 def wallet():
     return render_template("wallet.html", wallet="")
 
 
 @app.route("/settings")
+@require_login
 def settings():
     return render_template("settings.html", settings="")
 
 
 @app.route("/change-password")
+@require_login
 def change_password():
     return render_template("change-password.html")
 
 
 @app.route("/logout")
+@require_login
 def logout():
     session.clear()
     flash("You are logged out.")
