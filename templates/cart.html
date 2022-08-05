@@ -13,7 +13,7 @@ Cart
          style="background-color: #a68394;border:2px solid white;">
         {% for item in items_in_cart %}
 
-        <div class="d-flex gap-2 align-items-center" style="width:900px;padding-bottom:15px;border-bottom: 2px solid #e59eb0;">
+        <div class="d-flex gap-2 align-items-center" style="max-width:1200px;padding-bottom:15px;border-bottom: 2px solid #e59eb0;">
             <input type="hidden" name="id[]" value="{{item[0]}}">
 
             <!-- Product Name and Image -->

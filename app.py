@@ -150,7 +150,6 @@ def item(id):
 def cart():
     # Check if cart exists in session
     if "cart" not in session:
-        # session["cart"] = []
         session["cart"] = {}
         flash("No item in your cart")
         return render_template("cart.html")
@@ -187,7 +186,7 @@ def checkout():
     cursor = mysql.connection.cursor()
 
     ids = request.form.getlist("id[]")
-    product = request.form.getlist("quantity[]")
+    quantity = request.form.getlist("quantity[]")
 
     sql = """SELECT * FROM products where id in (""" + ",".join(list(ids)) + """)"""
     cursor.execute(sql)
@@ -199,7 +198,7 @@ def checkout():
 
     # Invalid Quantity
     for i in range(len(ids)):
-        if int(product[i]) <= 0:
+        if int(quantity[i]) <= 0:
             return err("Invalid Quantity of Item", 400)
 
     # After Successful Payment
@@ -213,17 +212,35 @@ def checkout():
 
     mysql.connection.commit()
 
-    # order_lists = {}
-    # order_lists["id"] = order_id
-
     # Record Order Lists for the Order
     for i in range(len(ids)):
+        cursor.execute("SELECT price FROM products WHERE id = %s", (ids[i]), )
+        price = cursor.fetchone()
+
         cursor.execute("INSERT INTO order_lists (order_id,product_id,quantity,subtotal) VALUES (%s,%s,%s,%s)",
-                       (order_id))
+                       (order_id, (ids[i]), (quantity[i]), price[0] * int(quantity[i])))
 
-        # order_lists[int(ids[i])] = int(product[i])
+        mysql.connection.commit()
 
-    return render_template("test.html", test="")
+    # Calculate Grand Total and Update Order Grand Total
+    cursor.execute("SELECT SUM(subtotal) FROM order_lists WHERE order_id = %s GROUP BY order_id", (order_id,))
+    grandtotal = cursor.fetchone()[0]
+
+    cursor.execute("UPDATE orders SET grand_total = %s WHERE id = %s", (grandtotal, order_id))
+    mysql.connection.commit()
+
+    # Notification
+    message = "Payment for Order ID " + str(order_id) + " is successful. We have notified the seller to ship."
+
+    cursor.execute("INSERT INTO notifications (user_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
+        session["user_id"], "Payment is Successful", message, datetime.datetime.now(),))
+
+    mysql.connection.commit()
+    cursor.close()
+
+    session["cart"] = {}
+    flash("Payment Successful")
+    return render_template("history.html")
 
 
 @app.route("/voucher", methods=["GET", "POST"])
@@ -298,10 +315,20 @@ def ratings():
     return render_template("ratings.html", purchases="")
 
 
-@app.route("/purchase-history")
+@app.route("/history")
 @require_login
 def purchase_history():
-    return render_template("purchase-history.html", purchases="")
+    cursor = mysql.connection.cursor()
+
+    # Get Order List of the orders by joining the results
+    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.image, order_lists.quantity,order_lists.subtotal FROM orders
+    JOIN order_lists ON orders.id = order_lists.order_id
+    JOIN products ON order_lists.product_id = products.id
+    WHERE user_id = %s
+    """ % session["user_id"], )
+    order_lists = cursor.fetchall()
+
+    return render_template("history.html", purchases=order_lists)
 
 
 @app.route("/wallet")
@@ -316,10 +343,53 @@ def settings():
     return render_template("settings.html", settings="")
 
 
-@app.route("/change-password")
+@app.route("/password", methods=["GET", "POST"])
 @require_login
 def change_password():
-    return render_template("change-password.html")
+    if request.method == "POST":
+        # blank password
+        if not request.form.get("prev_password") or not request.form.get("password") or not request.form.get(
+                "confirmation"):
+            return err("Please provide password", 403)
+
+        cursor = mysql.connection.cursor()
+
+        # retrieve previous password of the user
+        cursor.execute("SELECT password_hash FROM users WHERE id = %s" % session["user_id"], )
+
+        previous_password = cursor.fetchone()[0]
+
+        # previous password does not match
+        if not check_password_hash(previous_password, request.form.get("prev_password")):
+            return err("Wrong Previous Password", 403)
+
+        # same with previous password
+        if check_password_hash(previous_password, request.form.get("password")):
+            return err("Please enter a different password from previous password", 403)
+
+        # password does not match with confirmation
+        if not (request.form.get("password") == request.form.get("confirmation")):
+            return err("Password does not match with confirmation", 403)
+
+        # update user password
+        cursor.execute("UPDATE users SET password_hash = %s WHERE id = %s",
+                       (generate_password_hash(request.form.get("password")), session["user_id"],))
+
+        mysql.connection.commit()
+
+        # Notification
+        message = "You have changed your password. Doesn't recognize this? Contact Us."
+
+        cursor.execute("INSERT INTO notifications (user_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
+            session["user_id"], "Change password", message, datetime.datetime.now(),))
+
+        mysql.connection.commit()
+
+        cursor.close()
+
+        flash("Change password successfully!")
+
+    return render_template("password.html")
 
 
 @app.route("/logout")
