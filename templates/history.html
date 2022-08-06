@@ -26,7 +26,7 @@ History
             <!--  Check Order List in the Order Id -->
             {% for j in range(purchases|length) %}
             {% if purchases[j][0] == purchases[i][0] %}
-            <div class="d-flex" style="border-bottom:2px solid white;">
+            <div class="d-flex" style="border-bottom:2px solid #cc4d4d;">
                 <div style="display: flex;width:650px;justify-content: space-between">
                     <div>
                         <img src="{{purchases[j][6]}}" style="width:80px;height:80px;"/>
@@ -42,19 +42,19 @@ History
             {% endif %}
             {% endfor %}
 
-            <div style="border-bottom:2px solid white;">
+            <div style="border-bottom:2px solid #cc4d4d;">
                 <div style="width:650px;text-align: right;">
                     <p>Order Total : &nbsp;<span style="color:#ef0808;">{{purchases[i][1]|myr}}</span></p>
                 </div>
             </div>
 
-            <div style="border-bottom:2px solid white;">
+            <div style="border-bottom:2px solid #cc4d4d;">
                 <p style="width:650px;text-align: left;color:#cc1556;padding-left:10px;">
                     {{purchases[i][3]}}
                 </p>
             </div>
 
-            <div style="border-bottom:2px solid white;display: flex;width:650px;justify-content: center">
+            <div style="border-bottom:2px solid #cc4d4d;display: flex;width:650px;justify-content: center">
                 <p>
                     <button style="font-size:20px;background-color: red;color:white;border-radius: 10px;padding:10px 40px;border:none">
                         Rate
