@@ -184,6 +184,13 @@ def cart():
     return render_template("cart.html", items_in_cart=items_in_cart)
 
 
+@app.route("/clearitem/<int:id>", methods=["POST"])
+@require_login
+def clear_item(id):
+    session["cart"].pop(str(id))
+    return redirect("/cart")
+
+
 @app.route("/checkout", methods=["POST"])
 @require_login
 def checkout():
@@ -194,16 +201,34 @@ def checkout():
 
     sql = """SELECT * FROM products where id in (""" + ",".join(list(ids)) + """)"""
     cursor.execute(sql)
-    prod_checksum = cursor.fetchall()
+    items_in_cart = cursor.fetchall()
 
     # Invalid Item ID
-    if len(prod_checksum) != len(ids):
+    if len(items_in_cart) != len(ids):
         return err("Invalid Item ID", 400)
 
     # Invalid Quantity
     for i in range(len(ids)):
         if int(quantity[i]) <= 0:
             return err("Invalid Quantity of Item", 400)
+
+    # Calculate Subtotal
+    subtotal = 0
+    for i in range(len(ids)):
+        cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
+        subtotal += cursor.fetchone()[0] * int(quantity[i])
+
+    cursor.close()
+    return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal)
+
+
+@app.route("/payment", methods=["GET", "POST"])
+@require_login
+def payment():
+    cursor = mysql.connection.cursor()
+
+    ids = request.form.getlist("id[]")
+    quantity = request.form.getlist("quantity[]")
 
     # After Successful Payment
 
@@ -215,6 +240,9 @@ def checkout():
     order_id = cursor.lastrowid
 
     mysql.connection.commit()
+
+    shipment_fee = 5.0
+    tax = 0.06
 
     # Record Order Lists for the Order
     for i in range(len(ids)):
@@ -228,9 +256,10 @@ def checkout():
 
     # Calculate Grand Total and Update Order Grand Total
     cursor.execute("SELECT SUM(subtotal) FROM order_lists WHERE order_id = %s GROUP BY order_id", (order_id,))
-    grandtotal = cursor.fetchone()[0]
+    subtotal = float(cursor.fetchone()[0])
+    grand_total = ((subtotal + shipment_fee) * tax) + subtotal + shipment_fee
 
-    cursor.execute("UPDATE orders SET grand_total = %s WHERE id = %s", (grandtotal, order_id))
+    cursor.execute("UPDATE orders SET grand_total = %s WHERE id = %s", (grand_total, order_id))
     mysql.connection.commit()
 
     # Notification
@@ -244,7 +273,8 @@ def checkout():
 
     session["cart"] = {}
     flash("Payment Successful")
-    return render_template("history.html")
+
+    return redirect("/history")
 
 
 @app.route("/voucher", methods=["GET", "POST"])
@@ -285,10 +315,10 @@ def voucher():
 
     cursor = mysql.connection.cursor()
     cursor.execute("""
-    SELECT * FROM vouchers WHERE start_date <= '%s' AND end_date >= '%s'
+    SELECT * FROM vouchers WHERE '%s' BETWEEN start_date AND end_date
     AND NOT id IN (SELECT voucher_id FROM user_vouchers WHERE user_id = '%s')
     """ % (
-        datetime.datetime.now(), datetime.datetime.now(), session["user_id"]))
+        datetime.datetime.now(), session["user_id"]))
     vouchers = cursor.fetchall()
     cursor.close()
 
@@ -325,10 +355,11 @@ def purchase_history():
     cursor = mysql.connection.cursor()
 
     # Get Order List of the orders by joining the results
-    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.image, order_lists.quantity,order_lists.subtotal FROM orders
+    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.price, products.image, order_lists.quantity FROM orders
     JOIN order_lists ON orders.id = order_lists.order_id
     JOIN products ON order_lists.product_id = products.id
     WHERE user_id = %s
+    ORDER BY orders.order_time DESC
     """ % session["user_id"], )
     order_lists = cursor.fetchall()
 
@@ -338,7 +369,53 @@ def purchase_history():
 @app.route("/wallet")
 @require_login
 def wallet():
-    return render_template("wallet.html", wallet="")
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT amount FROM wallet WHERE user_id = %s" % session["user_id"], )
+    cash_in_wallet = cursor.fetchone()
+    cursor.close()
+    return render_template("wallet.html", cash_in_wallet=cash_in_wallet)
+
+
+@app.route("/topup", methods=["POST"])
+@require_login
+def topup_wallet():
+    cursor = mysql.connection.cursor()
+
+    try:
+        cash = int(request.form.get("amount"))
+    except ValueError:
+        return err("Please Provide A Positive Number", 400)
+
+    if cash <= 0:
+        return err("Value cannot be less than 0", 400)
+
+    cursor.execute("UPDATE wallet SET amount = amount + %s WHERE user_id = %s" % (cash, session["user_id"]), )
+    mysql.connection.commit()
+    cursor.close()
+
+    flash("Topup Successfully!")
+    return redirect("/wallet")
+
+
+@app.route("/withdrawal", methods=["POST"])
+@require_login
+def withdrawal_wallet():
+    cursor = mysql.connection.cursor()
+
+    try:
+        cash = int(request.form.get("amount"))
+    except ValueError:
+        return err("Please Provide A Positive Number", 400)
+
+    if cash <= 0:
+        return err("Value cannot be less than 0", 400)
+
+    cursor.execute("UPDATE wallet SET amount = amount - %s WHERE user_id = %s" % (cash, session["user_id"]), )
+    mysql.connection.commit()
+    cursor.close()
+
+    flash("Withdrawal Successfully!")
+    return redirect("/wallet")
 
 
 @app.route("/settings")

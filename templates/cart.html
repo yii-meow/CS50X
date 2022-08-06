@@ -6,14 +6,14 @@ Cart
 
 {% block main %}
 
-<!--Calculate subtotal-->
 {% if items_in_cart %}
 <form action="/checkout" method="POST">
     <div class="p-3 d-flex flex-wrap justify-content-center gap-3"
          style="background-color: #a68394;border:2px solid white;">
         {% for item in items_in_cart %}
 
-        <div class="d-flex gap-2 align-items-center" style="max-width:1200px;padding-bottom:15px;border-bottom: 2px solid #e59eb0;">
+        <div class="d-flex gap-2 align-items-center"
+             style="max-width:1200px;padding-bottom:15px;border-bottom: 2px solid #e59eb0;">
             <input type="hidden" name="id[]" value="{{item[0]}}">
 
             <!-- Product Name and Image -->
@@ -41,7 +41,8 @@ Cart
             </div>
 
             <!-- Delete Btn -->
-            <button class="d-flex justify-content-center" style="width:50px;border: none;background-color: transparent">
+            <button class="d-flex justify-content-center" formaction='/clearitem/{{item[0]}}'
+                    style="width:50px;border: none;background-color: transparent">
                 <i class="bi bi-trash-fill" style="color:#8f0000;font-size:28px;"></i>
             </button>
         </div>
