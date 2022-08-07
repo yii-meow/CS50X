@@ -139,8 +139,7 @@ def index():
 def item(id):
     cursor = mysql.connection.cursor()
     cursor.execute("""
-    SELECT products.id, name,price,description,image,quantity,release_date,sellers.username,sellers.address FROM products
-    JOIN sellers ON products.seller_id = sellers.id
+    SELECT products.id, name,price,description,image,quantity,release_date FROM products
     WHERE products.id = %s
     """ % str(id), )
     product = cursor.fetchone()

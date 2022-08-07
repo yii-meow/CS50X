@@ -18,14 +18,14 @@ Cart
 
             <!-- Product Name and Image -->
             <div class="d-flex gap-3" style="width:500px;">
-                <img src="{{item[5]}}" style="width:135px;height:135px;"
+                <img src="{{item[4]}}" style="width:135px;height:135px;"
                      onclick="window.open('/items/{{item[0]}}')"/>
-                <p style="text-align: left">{{item[2]}}</p>
+                <p style="text-align: left">{{item[1]}}</p>
             </div>
 
             <div style="width:150px;text-align: left">
                 <!-- Price -->
-                {{item[3]|myr}}
+                {{item[2]|myr}}
             </div>
 
             <div style="width:250px">

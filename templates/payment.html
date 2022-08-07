@@ -36,14 +36,14 @@ Payment
 
                 <!-- Product Name and Image -->
                 <div class="d-flex gap-3" style="width:700px;">
-                    <img src="{{item[5]}}" style="width:135px;height:135px;"
+                    <img src="{{item[4]}}" style="width:135px;height:135px;"
                          onclick="window.open('/items/{{item[0]}}')"/>
-                    <p style="text-align: left">{{item[2]}}</p>
+                    <p style="text-align: left">{{item[1]}}</p>
                 </div>
 
                 <div style="width:400px;text-align: left">
                     <!-- Price -->
-                    {{item[3]|myr}}
+                    {{item[2]|myr}}
                 </div>
 
                 <div style="width:200px">
@@ -57,7 +57,7 @@ Payment
 
                 <div style="width:300px;text-align: right">
                     <!-- Price -->
-                    {{(item[3] * session['cart'][item[0]|string])|myr}}
+                    {{(item[2] * session['cart'][item[0]|string])|myr}}
                 </div>
             </div>
 
