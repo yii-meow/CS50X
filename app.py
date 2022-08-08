@@ -5,7 +5,7 @@ from flask_session import Session
 from flask_mysqldb import MySQL
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from helpers import err, require_login, myr
+from helpers import err, require_login, require_seller_login, myr
 
 # Configure Application
 app = Flask(__name__)
@@ -229,7 +229,7 @@ def checkout():
     vouchers = cursor.fetchall()
 
     cursor.close()
-    return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers = vouchers)
+    return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers=vouchers)
 
 
 @app.route("/payment", methods=["GET", "POST"])
@@ -564,6 +564,60 @@ def seller_login():
             return err("Wrong username / password", 400)
 
         flash("Login Successful!")
-        return redirect("/")
+        session["seller_login_status"] = True
+
+        return redirect("/adminPortal")
 
     return render_template("sellerLogin.html")
+
+
+@app.route("/adminPortal", methods=["GET"])
+@require_seller_login
+def admin_portal():
+    return render_template("adminPortal.html")
+
+
+@app.route("/adminChat", methods=["GET", "POST"])
+@app.route("/adminChat/<int:id>", methods=["GET", "POST"])
+@require_seller_login
+def admin_chat_id(id=1):
+    if request.method == "POST":
+        # Send Message
+        chat_message = request.form.get("chat_message")
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM chat_lines WHERE user_id = %s" % id)
+        chat = cursor.fetchone()
+
+        # If there is chat before, insert to the existing chat
+        if chat:
+            cursor.execute(
+                "INSERT INTO chat_lines (chat_id,user_id,line_text,sender,created_at) VALUES (%s,%s,%s,%s,%s)",
+                (chat[1], id, chat_message, 'seller', datetime.datetime.now(),))
+
+        else:
+            # If there is no chat before, create a new chat
+            cursor.execute("INSERT INTO chats VALUES ()")
+            mysql.connection.commit()
+            chat_id = cursor.lastrowid
+            cursor.execute(
+                "INSERT INTO chat_lines (chat_id,user_id,line_text,sender,created_at) VALUES (%s,%s,%s,%s,%s)",
+                (chat_id, id, chat_message, 'seller', datetime.datetime.now(),))
+
+        mysql.connection.commit()
+        cursor.close()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""SELECT line_text,sender,created_at,user_id FROM chat_lines
+        WHERE user_id = %s
+        """ % id)
+    chat_messages = cursor.fetchall()
+
+    cursor.execute("""
+        SELECT DISTINCT(users.username),users.id FROM chats
+        JOIN chat_lines ON chats.id = chat_lines.chat_id
+        JOIN users On chat_lines.user_id = users.id
+        ORDER BY chat_lines.created_at DESC
+        """)
+    chat_users = cursor.fetchall()
+
+    return render_template("adminChat.html", chat_users=chat_users, chat_messages=chat_messages)

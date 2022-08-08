@@ -40,7 +40,7 @@
 <nav class="border navbar navbar-expand-md navbar-light" style="background-image: linear-gradient(#eac7ea, #EAC7EA);">
     <div class="container-fluid">
 
-        <a class="navbar-brand" href="/"><span>YIMMERCE</span></a>
+        <a class="navbar-brand" href="/adminPortal"><span>YIMMERCE</span></a>
 
         <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
                 data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
@@ -48,13 +48,15 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbar">
-            {% if session["user_id"] %}
+            {% if session["seller_login_status"] %}
             <ul class="navbar-nav me-auto mt-2">
-                <li class="nav-item"><a class="nav-link" href="/cart">Cart <i class="bi bi-cart-fill"></i></a></li>
+                <li class="nav-item"><a class="nav-link" href="/products">Products <i
+                        class="bi bi-bell-fill"></i></a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="/notification">Notification <i
                         class="bi bi-bell-fill"></i></a>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="/chat">Chat <i class="bi bi-chat-fill"></i></a></li>
+                <li class="nav-item"><a class="nav-link" href="/adminChat">Chat <i class="bi bi-chat-fill"></i></a></li>
                 <li class="nav-item"><a class="nav-link" href="/voucher">Voucher <i class="bi bi-gift-fill"></i></a>
                 </li>
             </ul>
@@ -63,12 +65,11 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
-                       aria-haspopup="true" aria-expanded="false">Me</a>
+                       aria-haspopup="true" aria-expanded="false">Shop</a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="/ratings">Ratings</a>
                         <a class="dropdown-item" href="/history">Purchase History</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/wallet">Check Wallet</a>
                         <a class="dropdown-item" href="/settings">General Settings</a>
                         <a class="dropdown-item" href="/password">Change Password</a>
                     </div>
@@ -79,7 +80,6 @@
             </ul>
             {% else %}
             <ul class="navbar-nav ms-auto mt-2">
-                <li class="nav-item"><a class="nav-link" href="/seller_login">Admin Portal</a></li>
                 <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
                 <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
             </ul>

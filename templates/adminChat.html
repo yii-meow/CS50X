@@ -1,18 +1,24 @@
-{% extends "layout.html" %}
+{% extends "sellerLayout.html" %}
 
 {% block title %}
-Chat
+Admin Chat
 {% endblock %}
-
 {% block main %}
+{{chats}}
 
 <div class="d-flex p-2 gap-4" style="height:100vh">
 
-    <div style="width:15%;padding:10px;background-color: white;color:black;height:max-content;border:2px solid black;">
-        yiyistore
+    <div style="width:20%">
+        {% for chat_user in chat_users %}
+        <div style="padding:10px;background-color: white;color:black;height:max-content;border:2px solid black;margin-bottom: 2rem;cursor: pointer"
+             onclick="window.open('/adminChat/{{chat_user[1]}}','_self')">
+            {{chat_user[0]}}
+        </div>
+        {% endfor %}
     </div>
 
-    <div class="border" style="width:85%;background-color: white;">
+    {% if chat_messages %}
+    <div class="border" style="width:80%;background-color: white;">
         <!--  Chat Content -->
         <div style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
             {% for message in chat_messages %}
@@ -39,15 +45,14 @@ Chat
 
 
         <!-- Sending Message -->
-        <form action="/chat" method="POST">
+        <form action="/adminChat/{{chat_messages[0][3]}}" method="POST">
             <input type="text" name="chat_message" placeholder="Type a message here" autocomplete="false" autofocus
                    style="border:none;outline:none;background-color: transparent;color:white;float:left;padding:15px;color:black;width:100%;"/>
             <button type="submit" style="float: right;padding:7px;margin:10px 15px;">Send</button>
         </form>
     </div>
-
+    {% endif %}
 
 </div>
-
 
 {% endblock %}

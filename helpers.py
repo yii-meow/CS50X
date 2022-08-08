@@ -21,5 +21,15 @@ def require_login(f):
     return decorated_function
 
 
+def require_seller_login(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get("seller_login_status") is None:
+            return redirect("/seller_login")
+        return f(*args,**kwargs)
+
+    return decorated_function
+
+
 def myr(value):
     return f"RM {value:,.2f}"
