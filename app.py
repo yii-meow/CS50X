@@ -334,12 +334,42 @@ def notification():
     return render_template("notification.html", notifications=notifications)
 
 
-@app.route("/chat")
+@app.route("/chat", methods=["GET", "POST"])
 @require_login
 def chat():
-    chats = ""
+    if request.method == "POST":
+        chat_message = request.form.get("chat_message")
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM chat_lines WHERE user_id = %s" % session["user_id"])
+        chat = cursor.fetchone()
 
-    return render_template("chat.html", chats="")
+        # If there is chat before, insert to the existing chat
+        if chat:
+            # return render_template("test.html", test=chat)
+            cursor.execute(
+                "INSERT INTO chat_lines (chat_id,user_id,line_text,sender,created_at) VALUES (%s,%s,%s,%s,%s)",
+                (chat[0], session["user_id"], chat_message, 'buyer', datetime.datetime.now(),))
+
+        else:
+            # If there is no chat before, create a new chat
+            cursor.execute("INSERT INTO chats VALUES ()")
+            mysql.connection.commit()
+            chat_id = cursor.lastrowid
+            cursor.execute(
+                "INSERT INTO chat_lines (chat_id,user_id,line_text,sender,created_at) VALUES (%s,%s,%s,%s,%s)",
+                (chat_id, session["user_id"], chat_message, 'buyer', datetime.datetime.now(),))
+
+        mysql.connection.commit()
+        cursor.close()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("""SELECT line_text,sender,created_at FROM chat_lines
+    WHERE user_id = %s
+    """ % session["user_id"])
+
+    chat_messages = cursor.fetchall()
+
+    return render_template("chat.html", chat_messages=chat_messages)
 
 
 @app.route("/ratings")

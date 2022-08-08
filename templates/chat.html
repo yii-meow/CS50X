@@ -6,20 +6,44 @@ Chat
 
 {% block main %}
 
-<div class="d-flex bg-primary p-3 gap-3" style="height:100vh">
+<div class="d-flex p-2 gap-4" style="height:100vh">
 
-    <div style="width:15%">
+    <div style="width:15%;padding:10px;background-color: white;color:black;height:max-content;border:2px solid black;">
         yiyistore
     </div>
 
-    <div class="border" style="width:55%;">
+    <div class="border" style="width:85%;background-color: white;">
+        <!--  Chat Content -->
+        <div style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
+            {% for message in chat_messages %}
+            {% if message[1] == "seller" %}
+            <div style="margin-bottom:30px;">
+                <p style="text-align: left;border:1px solid white;border-radius:5px;width:max-content;padding:10px;background-color: #477985;">
+                    {{message[0]}}
+                </p>
+                <p style="color:black;font-size:12px;text-align: left">{{message[2]}}</p>
+            </div>
 
-        Type a message here
+            {% else %}
+            <div>
+                <div style="width:100%;display: flex;justify-content: end">
+                    <p style="border:1px solid white;width:max-content;max-width:700px;border-radius:5px;padding:10px;background-color: #477985;text-align: left;word-break: break-word">
+                        {{message[0]}}
+                    </p>
+                </div>
+                <p style="color:black;font-size:12px;text-align: right;">{{message[2]}}</p>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
 
-    </div>
 
-    <div>
-        Orders
+        <!-- Sending Message -->
+        <form action="/chat" method="POST">
+            <input type="text" name="chat_message" placeholder="Type a message here" autocomplete="false" autofocus
+                   style="border:none;outline:none;background-color: transparent;color:white;float:left;padding:15px;color:black;width:100%;"/>
+            <button type="submit" style="float: right;padding:7px;margin:10px 15px;">Send</button>
+        </form>
     </div>
 
 
