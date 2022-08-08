@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Seller: Sign In
+{% endblock %}
+
+{% block main %}
+
+<div style="padding:20px;">
+    <h3 style="margin-bottom: 50px;color:#ec4d4d;">
+        Seller Login Page
+    </h3>
+
+    <div style="padding:25px;">
+        <form action="/seller_login" method="POST">
+            <input type="text" name="username" placeholder="Username" autocomplete="off" autofocus
+                   class="form-control mx-auto w-auto mb-5">
+            <input type="password" name="password" placeholder="Password" autocomplete="off"
+                   class="form-control mx-auto w-auto mb-5">
+
+            <button type="submit" class="btn btn-primary">Login</button>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

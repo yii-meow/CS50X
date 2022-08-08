@@ -78,9 +78,17 @@ def register():
             value)
 
         mysql.connection.commit()
+
+        wallet_id = cursor.lastrowid
+
+        # create new wallet for the user after successful registration
+        cursor.execute("INSERT INTO wallets (user_id) VALUES (%s)", (wallet_id,))
+
+        mysql.connection.commit()
         cursor.close()
 
         # redirect page
+
         flash("Register Successfully!")
         return render_template("login.html")
 
@@ -217,31 +225,59 @@ def checkout():
         cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
         subtotal += cursor.fetchone()[0] * int(quantity[i])
 
+    cursor.execute("SELECT * FROM user_vouchers WHERE user_id = %s" % session["user_id"])
+    vouchers = cursor.fetchall()
+
     cursor.close()
-    return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal)
+    return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers = vouchers)
 
 
 @app.route("/payment", methods=["GET", "POST"])
 @require_login
 def payment():
-    cursor = mysql.connection.cursor()
+    shipment_fee = 5.0
+    tax = 0.06
 
+    cursor = mysql.connection.cursor()
     ids = request.form.getlist("id[]")
     quantity = request.form.getlist("quantity[]")
 
-    # After Successful Payment
+    # Payment Process
+    payment_method = request.form.get("payment_method")
+
+    if not payment_method:
+        return err("Please choose a payment method", 400)
+
+    # Calculate Payment
+    subtotal = 0
+
+    for i in range(len(ids)):
+        cursor.execute("SELECT price FROM products WHERE id = %s", (ids[i]), )
+        price = cursor.fetchone()
+        subtotal += price[0] * int(quantity[i])
+
+    grand_total = ((subtotal + shipment_fee) * tax) + subtotal + shipment_fee
+
+    if payment_method == "wallet":
+        # Check user wallet balance
+        cursor.execute("SELECT amount FROM wallets WHERE user_id = %s", (session["user_id"],))
+        balance = cursor.fetchone()
+
+        if balance[0] < grand_total:
+            return err("Insufficient Balance in wallet", 400)
+
+        cursor.execute("UPDATE wallets SET amount = amount - %s WHERE user_id = %s", (grand_total, session["user_id"],))
+        mysql.connection.commit()
 
     # Create New Order
     cursor.execute(
-        "INSERT INTO orders (user_id, order_time) VALUES (%s,%s)", (session["user_id"], datetime.datetime.now(),))
-
-    # Retrieve Newly Generated Order ID
-    order_id = cursor.lastrowid
+        "INSERT INTO orders (user_id, order_time,grand_total) VALUES (%s,%s,%s)",
+        (session["user_id"], datetime.datetime.now(), grand_total))
 
     mysql.connection.commit()
 
-    shipment_fee = 5.0
-    tax = 0.06
+    # Retrieve Newly Generated Order ID
+    order_id = cursor.lastrowid
 
     # Record Order Lists for the Order
     for i in range(len(ids)):
@@ -253,14 +289,6 @@ def payment():
 
         mysql.connection.commit()
 
-    # Calculate Grand Total and Update Order Grand Total
-    cursor.execute("SELECT SUM(subtotal) FROM order_lists WHERE order_id = %s GROUP BY order_id", (order_id,))
-    subtotal = float(cursor.fetchone()[0])
-    grand_total = ((subtotal + shipment_fee) * tax) + subtotal + shipment_fee
-
-    cursor.execute("UPDATE orders SET grand_total = %s WHERE id = %s", (grand_total, order_id))
-    mysql.connection.commit()
-
     # Notification
     message = "Payment for Order ID " + str(order_id) + " is successful. We have notified the seller to ship."
 
@@ -270,6 +298,7 @@ def payment():
     mysql.connection.commit()
     cursor.close()
 
+    # Clear cart
     session["cart"] = {}
     flash("Payment Successful")
 
@@ -345,10 +374,9 @@ def chat():
 
         # If there is chat before, insert to the existing chat
         if chat:
-            # return render_template("test.html", test=chat)
             cursor.execute(
                 "INSERT INTO chat_lines (chat_id,user_id,line_text,sender,created_at) VALUES (%s,%s,%s,%s,%s)",
-                (chat[0], session["user_id"], chat_message, 'buyer', datetime.datetime.now(),))
+                (chat[1], session["user_id"], chat_message, 'buyer', datetime.datetime.now(),))
 
         else:
             # If there is no chat before, create a new chat
@@ -399,7 +427,7 @@ def purchase_history():
 @require_login
 def wallet():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT amount FROM wallet WHERE user_id = %s" % session["user_id"], )
+    cursor.execute("SELECT amount FROM wallets WHERE user_id = %s" % session["user_id"], )
     cash_in_wallet = cursor.fetchone()
     cursor.close()
     return render_template("wallet.html", cash_in_wallet=cash_in_wallet)
@@ -418,7 +446,7 @@ def topup_wallet():
     if cash <= 0:
         return err("Value cannot be less than 0", 400)
 
-    cursor.execute("UPDATE wallet SET amount = amount + %s WHERE user_id = %s" % (cash, session["user_id"]), )
+    cursor.execute("UPDATE wallets SET amount = amount + %s WHERE user_id = %s" % (cash, session["user_id"]), )
     mysql.connection.commit()
     cursor.close()
 
@@ -439,7 +467,12 @@ def withdrawal_wallet():
     if cash <= 0:
         return err("Value cannot be less than 0", 400)
 
-    cursor.execute("UPDATE wallet SET amount = amount - %s WHERE user_id = %s" % (cash, session["user_id"]), )
+    cursor.execute("SELECT amount FROM wallets WHERE user_id = %s" % session["user_id"])
+
+    if cash > cursor.fetchone()[0]:
+        return err("Insufficient Balance to Withdraw")
+
+    cursor.execute("UPDATE wallets SET amount = amount - %s WHERE user_id = %s" % (cash, session["user_id"]), )
     mysql.connection.commit()
     cursor.close()
 
@@ -508,3 +541,29 @@ def logout():
     session.clear()
     flash("You are logged out.")
     return render_template("login.html")
+
+
+@app.route("/seller_login", methods=["GET", "POST"])
+def seller_login():
+    session.clear()
+
+    if request.method == "POST":
+        if not request.form.get("username"):
+            return err("Please provide username", 400)
+
+        if not request.form.get("password"):
+            return err("Please provide password", 400)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM seller WHERE username = %s", (request.form.get("username"),))
+        seller = cursor.fetchone()
+        cursor.close()
+
+        # Check password matching
+        if not seller or not (seller[2] == request.form.get("password")):
+            return err("Wrong username / password", 400)
+
+        flash("Login Successful!")
+        return redirect("/")
+
+    return render_template("sellerLogin.html")

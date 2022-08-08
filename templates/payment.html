@@ -67,31 +67,47 @@ Payment
 
         <div style="border:2px solid white;background-color: #e1d2d2;text-align: left;width:1000px;padding:20px 15px;color:black;">
             <div class="d-flex">
-                <span style="color:red;">Payment Method</span>
+                <span style="color:red;width:200px;">Payment Method</span>
 
                 <div style="margin-left:30px;display: flex">
                     <div>
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                        <input class="form-check-input" type="radio" name="payment_method" id="flexRadioDefault1"
+                               value="wallet">
                         <label class="form-check-label" for="flexRadioDefault1" style="margin-left:10px;">
                             Wallet
                         </label>
                     </div>
 
                     <div style="margin-left:30px;">
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+                        <input class="form-check-input" type="radio" name="payment_method" id="flexRadioDefault2"
+                               value="online_banking">
                         <label class="form-check-label" for="flexRadioDefault2" style="margin-left:10px;">
                             Online Banking
                         </label>
                     </div>
 
                     <div style="margin-left:30px;">
-                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+                        <input class="form-check-input" type="radio" name="payment_method" id="flexRadioDefault2"
+                               value="cod">
                         <label class="form-check-label" for="flexRadioDefault2" style="margin-left:10px;">
                             Cash On Delivery
                         </label>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div style="border:2px solid white;background-color: #e1d2d2;width:1000px;padding:10px 20px;color:black;justify-content: flex-start;display: flex">
+
+            <span style="margin-right:30px;color:red;width:200px;text-align: left;">Voucher</span>
+
+            <select name="voucher" style="width:100px;">
+                <option selected value="none">None</option>
+                {% for voucher in vouchers %}
+                <option value="{{voucher[1]}}">{{voucher[1]}}</option>
+                {% endfor %}
+            </select>
+
         </div>
 
         <div style="border:2px solid white;background-color: #e1d2d2;width:1000px;padding:10px 20px;color:black;display: flex;justify-content: end">
