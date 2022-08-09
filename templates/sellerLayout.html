@@ -50,7 +50,7 @@
         <div class="collapse navbar-collapse" id="navbar">
             {% if session["seller_login_status"] %}
             <ul class="navbar-nav me-auto mt-2">
-                <li class="nav-item"><a class="nav-link" href="/products">Products <i
+                <li class="nav-item"><a class="nav-link" href="/adminProduct">Products <i
                         class="bi bi-bell-fill"></i></a>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="/notification">Notification <i
@@ -97,7 +97,7 @@
 </header>
 {% endif %}
 
-<main class="container-fluid py-5 text-center alert-dismissible">
+<main class="container-fluid py-5 text-center alert-dismissible" style="overflow: auto;">
     {% block main %}{% endblock %}
 </main>
 

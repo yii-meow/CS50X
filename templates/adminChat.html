@@ -4,9 +4,17 @@
 Admin Chat
 {% endblock %}
 {% block main %}
-{{chats}}
 
-<div class="d-flex p-2 gap-4" style="height:100vh">
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        window.scrollTo(0, document.body.scrollHeight)
+
+        var scrollChat = document.getElementById("chat_scroll")
+        scrollChat.scrollTop = scrollChat.scrollHeight;
+    })
+</script>
+
+<div class="d-flex p-2 gap-4" style="height:100vh;">
 
     <div style="width:20%">
         {% for chat_user in chat_users %}
@@ -20,7 +28,7 @@ Admin Chat
     {% if chat_messages %}
     <div class="border" style="width:80%;background-color: white;">
         <!--  Chat Content -->
-        <div style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
+        <div id="chat_scroll" style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
             {% for message in chat_messages %}
             {% if message[1] == "seller" %}
             <div style="margin-bottom:30px;">

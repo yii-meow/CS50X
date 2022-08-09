@@ -252,7 +252,7 @@ def payment():
     subtotal = 0
 
     for i in range(len(ids)):
-        cursor.execute("SELECT price FROM products WHERE id = %s", (ids[i]), )
+        cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
         price = cursor.fetchone()
         subtotal += price[0] * int(quantity[i])
 
@@ -281,7 +281,7 @@ def payment():
 
     # Record Order Lists for the Order
     for i in range(len(ids)):
-        cursor.execute("SELECT price FROM products WHERE id = %s", (ids[i]), )
+        cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
         price = cursor.fetchone()
 
         cursor.execute("INSERT INTO order_lists (order_id,product_id,quantity,subtotal) VALUES (%s,%s,%s,%s)",
@@ -403,6 +403,13 @@ def chat():
 @app.route("/ratings")
 @require_login
 def ratings():
+    if request.method == "POST":
+        cursor = mysql.connection.cursor()
+        cursor.execute("INSERT INTO ratings (product_id,user_id,stars,content) VALUES (%s,%s,%s,%s)",
+                       (1, session["user_id"], 1, "",))
+        mysql.connection.commit()
+        cursor.close()
+
     return render_template("ratings.html", purchases="")
 
 
@@ -575,6 +582,94 @@ def seller_login():
 @require_seller_login
 def admin_portal():
     return render_template("adminPortal.html")
+
+
+@app.route("/adminProduct", methods=["GET", "PUT", "POST", "DELETE"])
+@require_seller_login
+def admin_product():
+    # Create New Product
+    if request.method == "POST":
+        # Check all the fields are filled
+        if not (request.form.get("product_name") and request.form.get("price") and request.form.get(
+                "product_description") and request.form.get("product_image") and request.form.get("quantity")):
+            return err("Please fill in all the field!", 400)
+
+        # Check price and quantity
+        try:
+            price = float(request.form.get("price"))
+            quantity = int(request.form.get("quantity"))
+        except ValueError:
+            return err("Please Provide A Valid Number of Price / Quantity", 400)
+
+        if price <= 0 or quantity <= 0:
+            return err("Price cannot be less than 0", 400)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO products (name,price,description,image,quantity,release_date) VALUES (%s,%s,%s,%s,%s,%s)",
+            (request.form.get("product_name"), request.form.get("price"), request.form.get("product_description"),
+             request.form.get("product_image"), request.form.get("quantity"), datetime.datetime.now(),))
+
+        mysql.connection.commit()
+        cursor.close()
+        flash("Created Product Successfully!")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM products")
+    products = cursor.fetchall()
+
+    return render_template("adminProduct.html", products=products)
+
+
+@app.route("/updateProduct", methods=["POST"])
+@require_seller_login
+def update_product():
+    # Check all the fields are filled
+    if not (request.form.get("product_name") and request.form.get("price") and request.form.get(
+            "product_description") and request.form.get("product_image") and request.form.get("quantity")):
+        return err("Please fill in all the field!", 400)
+
+    # Check price and quantity
+    try:
+        price = float(request.form.get("price"))
+        quantity = int(request.form.get("quantity"))
+    except ValueError:
+        return err("Please Provide A Valid Number of Price / Quantity", 400)
+
+    if price <= 0 or quantity <= 0:
+        return err("Price cannot be less than 0", 400)
+
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("""
+        UPDATE products 
+        SET name = %s, price = %s, description = %s, image = %s, quantity = %s
+        WHERE id = %s
+    """, (request.form.get("product_name"), price,
+          request.form.get("product_description"),
+          request.form.get("product_image"), quantity, request.form.get("product_id")))
+
+    mysql.connection.commit()
+    cursor.close()
+    flash("Updated Product Successfully!")
+    return redirect("/adminProduct")
+
+
+@app.route("/deleteProduct", methods=["POST"])
+@require_seller_login
+def delete_product():
+    cursor = mysql.connection.cursor()
+
+    # product cannot be deleted due to foreign key integrity
+    try:
+        cursor.execute("DELETE FROM products WHERE id = %s" % request.form.get("id"))
+    except:
+        return err("Product cannot be deleted.", 400)
+
+    mysql.connection.commit()
+    cursor.close()
+    flash("Delete Product Successfully!")
+    return redirect("/adminProduct")
 
 
 @app.route("/adminChat", methods=["GET", "POST"])

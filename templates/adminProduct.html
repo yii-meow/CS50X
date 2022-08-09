@@ -1,0 +1,158 @@
+{% extends "sellerLayout.html" %}
+
+{% block title %}
+Admin Product
+{% endblock %}
+
+{% block main %}
+<div class="d-flex justify-content-center">
+    <button type="button" class="btn" data-toggle="modal" data-target="#createProduct" data-whatever="@mdo"
+            style="padding:15px;border-radius: 15px;margin-bottom: 20px;font-size:20px;background-color: #fa6493">
+        Create New Product <i class="bi bi-bag-plus-fill" style="font-size:25px;margin-left:10px;color:#2d0f0f;"></i>
+    </button>
+</div>
+
+<div class="container d-flex flex-wrap gap-5" style="margin-top:2rem;">
+
+    {% for product in products %}
+    <div class="card text-white" style="width: 250px;height:max-content;padding:0.5rem;background-color:#CE7DA5">
+        <div>
+            <img class="card-img-top" src="{{product[4]}}" alt="Card image cap"
+                 style="width:12rem;height:16rem;">
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{product[1]}}</h5>
+            <p class="card-text mt-3">
+                {{product[2] | myr }}
+            </p>
+            <div class="d-flex flex-wrap gap-4 justify-content-center mt-4">
+                <!-- UPDATE PRODUCT -->
+                <button class='updateProduct btn btn-success btn-sm rounded-0 editButton' data-toggle="modal"
+                        data-whatever="@mdo" data-target="#updateProduct{{product[0]}}">
+                    <i class="bi bi-pencil-square" style="font-size:22px;"></i>
+                </button>
+
+                <!-- DELETE PRODUCT -->
+                <form action="/deleteProduct" method="POST">
+                    <input type="hidden" name="id" value="{{product[0]}}">
+                    <button class="btn btn-danger btn-sm rounded-0 deleteButton" type="submit">
+                        <i class="bi bi-trash3-fill" style="font-size:22px;"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--Bootstrap Modal for Updating New Product-->
+    <div class="modal fade" id="updateProduct{{product[0]}}" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true" style="color:black;text-align: left">
+
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Item Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form action="/updateProduct" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="product_id" id="product_id">
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Product Name</label>
+                            <input type="text" class="form-control" name="product_name" id="product_name"
+                                   value="{{product[1]}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Price</label>
+                            <input type="text" class="form-control" name="price" value="{{product[2]}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Product Description</label>
+                            <input type="text" class="form-control" name="product_description"
+                                   value="{{product[3]}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Product Image Link</label>
+                            <input type="text" class="form-control" name="product_image" value="{{product[4]}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Stock</label>
+                            <input type="text" class="form-control" name="quantity" value="{{product[5]}}">
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="submit" name="update" class="btn btn-primary" value="Update Product"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+</div>
+
+<!--Bootstrap Modal for Creating New Product-->
+<div class="modal fade" id="createProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true" style="color:black;text-align: left">
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Item Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form action="/adminProduct" method="POST">
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="recipient-name" class="col-form-label">Product Name</label>
+                        <input type="text" class="form-control" name="product_name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Price</label>
+                        <input type="text" class="form-control" name="price">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Product Description</label>
+                        <input type="text" class="form-control" name="product_description">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Product Image Link</label>
+                        <input type="text" class="form-control" name="product_image">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message-text" class="col-form-label">Stock</label>
+                        <input type="text" class="form-control" name="quantity">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" name="update" class="btn btn-primary" value="Create New Product"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
