@@ -6,7 +6,7 @@ Chat
 
 {% block main %}
 
-<div class="d-flex p-2 gap-4" style="height:100vh">
+<div class="d-flex p-2 gap-4" style="height:85vh">
 
     <div style="width:15%;padding:10px;background-color: white;color:black;height:max-content;border:2px solid black;">
         yiyistore
@@ -37,7 +37,6 @@ Chat
             {% endfor %}
         </div>
 
-
         <!-- Sending Message -->
         <form action="/chat" method="POST">
             <input type="text" name="chat_message" placeholder="Type a message here" autocomplete="false" autofocus
@@ -45,7 +44,6 @@ Chat
             <button type="submit" style="float: right;padding:7px;margin:10px 15px;">Send</button>
         </form>
     </div>
-
 
 </div>
 

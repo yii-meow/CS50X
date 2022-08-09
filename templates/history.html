@@ -5,6 +5,26 @@ History
 {% endblock %}
 
 {% block main %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const starWrapper = document.querySelector(".stars")
+        const stars = document.querySelectorAll(".stars span")
+
+        stars.forEach((star, clickedIdx) => {
+            star.addEventListener("click", () => {
+                starWrapper.classList.add("disabled");
+                stars.forEach((otherStar, otherIdx) => {
+                    if (otherIdx <= clickedIdx) {
+                        otherStar.classList.add("active")
+                    }
+                });
+
+                $("#total_stars").val(clickedIdx + 1)
+            })
+        })
+    })
+
+</script>
 
 <div class="p-3 d-flex flex-wrap gap-5 justify-content-center" style="max-width: 1200px;">
     {% for i in range(purchases|length) %}
@@ -29,13 +49,13 @@ History
             <div class="d-flex" style="border-bottom:2px solid #cc4d4d;">
                 <div style="display: flex;width:650px;justify-content: space-between">
                     <div>
-                        <img src="{{purchases[j][6]}}" style="width:80px;height:80px;"/>
+                        <img src="{{purchases[j][7]}}" style="width:80px;height:80px;"/>
                     </div>
 
                     <div style="line-height: 15px;text-align: right">
-                        <p>{{purchases[j][4]}}</p>
-                        <p>x {{purchases[j][7]}}</p>
-                        <p>{{purchases[j][5]|myr}}</p>
+                        <p>{{purchases[j][5]}}</p>
+                        <p>x {{purchases[j][8]}}</p>
+                        <p>{{purchases[j][6]|myr}}</p>
                     </div>
                 </div>
             </div>
@@ -56,13 +76,67 @@ History
 
             <div style="border-bottom:2px solid #cc4d4d;display: flex;width:650px;justify-content: center">
                 <p>
-                    <button style="font-size:20px;background-color: red;color:white;border-radius: 10px;padding:10px 40px;border:none">
+                    <button data-toggle="modal"
+                            data-whatever="@mdo" data-target="#ratingModal{{purchases[i][0]}}"
+                            style="font-size:20px;background-color: red;color:white;border-radius: 10px;padding:10px 40px;border:none">
                         Rate
                     </button>
                 </p>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="ratingModal{{purchases[i][0]}}" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true" style="color:black;text-align: left">
+        <div class="modal-dialog" role="document">
+            <form action="/ratings" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Product Rating</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="form-group">
+
+                            <div>
+                                <select name="product_id">
+                                    {% for j in range(purchases|length) %}
+                                    {% if purchases[j][0] == purchases[i][0] %}
+                                    <option value="{{purchases[j][4]}}">{{purchases[j][5]}}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="stars">
+                                <!--  Rating Star -->
+                                {% for i in range(5) %}
+                                <span class="bi bi-star-fill checked"></span>
+                                {% endfor %}
+                            </div>
+
+                            <textarea name="ratingContent" placeholder="Rating Content"
+                                      style="margin-top:1rem;padding:5px;"></textarea>
+
+                            <input type="hidden" name="order_id" value="{{purchases[i][0]}}"/>
+                            <input type="hidden" id="total_stars" name="total_stars"/>
+                        </div>
+                    </div>
+
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" name="submit" class="btn btn-primary">Rate</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {% endif %}
     {% endfor %}
 </div>

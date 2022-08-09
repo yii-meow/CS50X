@@ -400,17 +400,42 @@ def chat():
     return render_template("chat.html", chat_messages=chat_messages)
 
 
-@app.route("/ratings")
+@app.route("/ratings", methods=["POST"])
 @require_login
 def ratings():
     if request.method == "POST":
+        if not request.form.get("total_stars"):
+            return err("Please provide rating",400)
+
+        if not request.form.get("ratingContent"):
+            return err("Please provide rating content", 400)
+
         cursor = mysql.connection.cursor()
         cursor.execute("INSERT INTO ratings (product_id,user_id,stars,content) VALUES (%s,%s,%s,%s)",
-                       (1, session["user_id"], 1, "",))
+                       (request.form.get("product_id"), session["user_id"], request.form.get("total_stars"),
+                        request.form.get("ratingContent"),))
         mysql.connection.commit()
+
+        # After rating, set rating of the order list is true
+        cursor.execute("UPDATE order_lists SET rated = 1 WHERE order_id = %s AND product_id = %s",
+                       (request.form.get("order_id"), request.form.get("product_id"),))
+
+        mysql.connection.commit()
+        flash("Rate Successfully!")
         cursor.close()
 
-    return render_template("ratings.html", purchases="")
+    return redirect("/userRatings")
+
+
+@app.route("/userRatings", methods=["GET", "POST"])
+@require_login
+def userRatings():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM ratings WHERE user_id = %s" % session["user_id"])
+    ratings = cursor.fetchall()
+    cursor.close()
+
+    return render_template("ratings.html", ratings=ratings)
 
 
 @app.route("/history")
@@ -419,7 +444,7 @@ def purchase_history():
     cursor = mysql.connection.cursor()
 
     # Get Order List of the orders by joining the results
-    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.price, products.image, order_lists.quantity FROM orders
+    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.id, products.name, products.price, products.image, order_lists.quantity FROM orders
     JOIN order_lists ON orders.id = order_lists.order_id
     JOIN products ON order_lists.product_id = products.id
     WHERE user_id = %s
@@ -581,7 +606,18 @@ def seller_login():
 @app.route("/adminPortal", methods=["GET"])
 @require_seller_login
 def admin_portal():
-    return render_template("adminPortal.html")
+    cursor = mysql.connection.cursor()
+
+    # Get Order List of the orders by joining the results
+    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.price, products.image, order_lists.quantity,users.username FROM orders
+            JOIN order_lists ON orders.id = order_lists.order_id
+            JOIN products ON order_lists.product_id = products.id
+            JOIN users ON orders.user_id = users.id
+            ORDER BY orders.order_time DESC
+            """)
+    order_lists = cursor.fetchall()
+
+    return render_template("adminPortal.html", purchases=order_lists)
 
 
 @app.route("/adminProduct", methods=["GET", "PUT", "POST", "DELETE"])
@@ -672,23 +708,6 @@ def delete_product():
     return redirect("/adminProduct")
 
 
-@app.route("/adminPurchaseHistory",methods=["GET"])
-@require_seller_login
-def admin_history():
-    cursor = mysql.connection.cursor()
-
-    # Get Order List of the orders by joining the results
-    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.price, products.image, order_lists.quantity,users.username FROM orders
-        JOIN order_lists ON orders.id = order_lists.order_id
-        JOIN products ON order_lists.product_id = products.id
-        JOIN users ON orders.user_id = users.id
-        ORDER BY orders.order_time DESC
-        """)
-    order_lists = cursor.fetchall()
-
-    return render_template("adminPurchaseHistory.html", purchases=order_lists)
-
-
 @app.route("/adminChat", methods=["GET", "POST"])
 @app.route("/adminChat/<int:id>", methods=["GET", "POST"])
 @require_seller_login
@@ -741,7 +760,7 @@ def admin_notification():
     return render_template("adminNotification.html")
 
 
-@app.route("/adminVoucher",methods=["GET","POST"])
+@app.route("/adminVoucher", methods=["GET", "POST"])
 @require_seller_login
 def admin_voucher():
     return render_template("adminVoucher.html")
