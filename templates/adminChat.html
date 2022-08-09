@@ -7,14 +7,12 @@ Admin Chat
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        window.scrollTo(0, document.body.scrollHeight)
-
         var scrollChat = document.getElementById("chat_scroll")
         scrollChat.scrollTop = scrollChat.scrollHeight;
     })
 </script>
 
-<div class="d-flex p-2 gap-4" style="height:100vh;">
+<div class="d-flex p-2 gap-4" style="height:85vh;">
 
     <div style="width:20%">
         {% for chat_user in chat_users %}

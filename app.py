@@ -672,6 +672,23 @@ def delete_product():
     return redirect("/adminProduct")
 
 
+@app.route("/adminPurchaseHistory",methods=["GET"])
+@require_seller_login
+def admin_history():
+    cursor = mysql.connection.cursor()
+
+    # Get Order List of the orders by joining the results
+    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.name, products.price, products.image, order_lists.quantity,users.username FROM orders
+        JOIN order_lists ON orders.id = order_lists.order_id
+        JOIN products ON order_lists.product_id = products.id
+        JOIN users ON orders.user_id = users.id
+        ORDER BY orders.order_time DESC
+        """)
+    order_lists = cursor.fetchall()
+
+    return render_template("adminPurchaseHistory.html", purchases=order_lists)
+
+
 @app.route("/adminChat", methods=["GET", "POST"])
 @app.route("/adminChat/<int:id>", methods=["GET", "POST"])
 @require_seller_login
@@ -716,3 +733,15 @@ def admin_chat_id(id=1):
     chat_users = cursor.fetchall()
 
     return render_template("adminChat.html", chat_users=chat_users, chat_messages=chat_messages)
+
+
+@app.route("/adminNotification", methods=["GET"])
+@require_seller_login
+def admin_notification():
+    return render_template("adminNotification.html")
+
+
+@app.route("/adminVoucher",methods=["GET","POST"])
+@require_seller_login
+def admin_voucher():
+    return render_template("adminVoucher.html")
