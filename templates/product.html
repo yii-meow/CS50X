@@ -15,19 +15,39 @@ Product Details
     <div class="p-3">
         <h3 class="" style="max-width:400px;text-align:left">{{product[1]}}</h3>
 
-        <div class="d-flex gap-4 mt-4">
+        <div class="d-flex gap-3 mt-4">
+            <div>
+                {% if product[7] %}
+                {{product[7]}}
 
-            <!-- To Do -->
-            <div>
-                4.9 ☆☆☆☆☆
+                <!--  Printing Full Star -->
+                {% for i in range ((product[7]|int)%10) %}
+                <i class="bi bi-star-fill" style="color:red;"></i>
+                {% endfor %}
+
+                <!--  Printing Half Star -->
+                {% if product[7] %1 >= 0.5 %}
+                <i class="bi bi-star-half" style="color:red;"></i>
+                {% endif %}
+
+                {% else %}
+                No Ratings Yet
+                {% endif %}
+
             </div>
             |
             <div>
-                90 Ratings
+                {{product[8]}} Ratings
             </div>
             |
             <div>
-                163 Sold
+                {% if product[9]%}
+                {{product[9]}} Sold
+
+                {% else %}
+                No Sold Yet
+                {% endif %}
+
             </div>
 
         </div>
@@ -141,11 +161,6 @@ Product Details
 
     <table class="product_spec" style="text-align:left;">
         <tr>
-            <th>Category</th>
-            <td>--> --> --></td>
-        </tr>
-
-        <tr>
             <th>Brand</th>
             <td>Dong Lin She</td>
         </tr>
@@ -252,61 +267,31 @@ Product Details
 
 <!-- User Rating -->
 <div class="d-flex flex-wrap gap-5">
-    <div class="d-flex gap-3 border-bottom" style="padding-left:50px;padding-bottom: 1rem">
-        <div style="width:200px;text-align: left">
+    {% for rating in ratings %}
+    <div class="d-flex gap-3 border-bottom" style="margin-left:50px;padding-bottom: 1rem;width:90%">
+        <div style="width:100px;text-align: left">
             <img src="../static/pic/1638157275081.jpg" style="width:6rem;height:6rem;" class="border rounded-circle">
         </div>
 
         <div class="d-flex">
             <div style="text-align: left">
-                <p style="text-align: left;">&nbsp;w*****n</p>
+                <p style="text-align: left;">&nbsp;{{rating[3]}}</p>
                 <div class="d-flex my-3">
-                    {% for i in range(5) %}
+                    {% for i in range(rating[0]) %}
                     <i class="bi bi-star-fill" style="font-size:14px;color:red"></i>
                     {% endfor %}
                 </div>
 
-                <small>&nbsp;2022-07-12 11:54</small>
+                <small>&nbsp;{{rating[2]}}</small>
 
-                <p class="mt-4" style="line-height: 35px;">
-                    &nbsp;it fits perfectly and FYI the waist area is stretchy type! so anyone which has a size of 28-29
-                    will
-                    surely fit this. and the material of the skirt is tiptop too, its thin and perfect for hot weather
-                    but
-                    its not sheer to a point its see through
+                <p class="mt-4" style="line-height: 35px;margin-left:2px;">
+                    {{rating[1]}}
                 </p>
             </div>
 
         </div>
     </div>
-
-    <div class="d-flex gap-3 border-bottom" style="padding-left:50px;padding-bottom: 1rem">
-        <div style="width:200px;text-align: left">
-            <img src="../static/pic/1638157275081.jpg" style="width:6rem;height:6rem;" class="border rounded-circle">
-        </div>
-
-        <div class="d-flex">
-            <div style="text-align: left">
-                <p style="text-align: left;">&nbsp;w*****n</p>
-                <div class="d-flex my-3">
-                    {% for i in range(5) %}
-                    <i class="bi bi-star-fill" style="font-size:14px;color:red"></i>
-                    {% endfor %}
-                </div>
-
-                <small>&nbsp;2022-07-12 11:54</small>
-
-                <p class="mt-4" style="line-height: 35px;">
-                    &nbsp;it fits perfectly and FYI the waist area is stretchy type! so anyone which has a size of 28-29
-                    will
-                    surely fit this. and the material of the skirt is tiptop too, its thin and perfect for hot weather
-                    but
-                    its not sheer to a point its see through
-                </p>
-            </div>
-
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
 

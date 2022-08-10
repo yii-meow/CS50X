@@ -147,13 +147,23 @@ def index():
 def item(id):
     cursor = mysql.connection.cursor()
     cursor.execute("""
-    SELECT products.id, name,price,description,image,quantity,release_date FROM products
+    SELECT products.id, name,price,description,image,quantity,release_date, ROUND(AVG(ratings.stars),1), COUNT(ratings.product_id),amount_of_sold FROM products
+    LEFT JOIN ratings ON products.id = ratings.product_id
     WHERE products.id = %s
+    GROUP BY ratings.product_id
     """ % str(id), )
     product = cursor.fetchone()
+
+    cursor.execute("""
+    SELECT ratings.stars, ratings.content, ratings.created_at, users.username FROM ratings
+    JOIN users ON ratings.user_id = users.id
+    WHERE product_id = %s
+    """ % str(id))
+    ratings = cursor.fetchall()
+
     cursor.close()
 
-    return render_template("product.html", product=product)
+    return render_template("product.html", product=product, ratings=ratings)
 
 
 @app.route("/cart", methods=["GET", "POST"])
@@ -218,6 +228,9 @@ def checkout():
     for i in range(len(ids)):
         if int(quantity[i]) <= 0:
             return err("Invalid Quantity of Item", 400)
+
+        elif int(quantity[i]) > items_in_cart[i][5]:
+            return err("No enough stock to buy", 400)
 
     # Calculate Subtotal
     subtotal = 0
@@ -286,6 +299,13 @@ def payment():
 
         cursor.execute("INSERT INTO order_lists (order_id,product_id,quantity,subtotal) VALUES (%s,%s,%s,%s)",
                        (order_id, (ids[i]), (quantity[i]), price[0] * int(quantity[i])))
+
+        mysql.connection.commit()
+
+        # Update product Quantity and amount of sold
+        cursor.execute(
+            "UPDATE products SET quantity = quantity - %s, amount_of_sold = amount_of_sold + %s WHERE id = %s",
+            (int(quantity[i]), int(quantity[i]), ids[i]), )
 
         mysql.connection.commit()
 
@@ -411,9 +431,9 @@ def ratings():
             return err("Please provide rating content", 400)
 
         cursor = mysql.connection.cursor()
-        cursor.execute("INSERT INTO ratings (product_id,user_id,stars,content) VALUES (%s,%s,%s,%s)",
+        cursor.execute("INSERT INTO ratings (product_id,user_id,stars,content,created_at) VALUES (%s,%s,%s,%s,%s)",
                        (request.form.get("product_id"), session["user_id"], request.form.get("rating"),
-                        request.form.get("ratingContent"),))
+                        request.form.get("ratingContent"), datetime.datetime.now(),))
         mysql.connection.commit()
 
         # After rating, set rating of the order list is true
@@ -447,7 +467,12 @@ def view_rating(id):
 @require_login
 def userRatings():
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM ratings WHERE user_id = %s" % session["user_id"])
+    cursor.execute("""
+    SELECT * FROM ratings
+    JOIN products ON ratings.product_id = products.id
+    WHERE user_id = %s
+    ORDER BY ratings.created_at DESC
+    """ % session["user_id"])
     ratings = cursor.fetchall()
     cursor.close()
 
@@ -780,3 +805,17 @@ def admin_notification():
 @require_seller_login
 def admin_voucher():
     return render_template("adminVoucher.html")
+
+
+@app.route("/adminRatings", methods=["GET"])
+@require_seller_login
+def admin_ratings():
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+    SELECT * FROM ratings
+    JOIN products ON ratings.product_id = products.id
+    ORDER BY ratings.created_at DESC
+    """)
+    ratings = cursor.fetchall()
+
+    return render_template("adminRatings.html", ratings=ratings)

@@ -15,7 +15,7 @@ All Purchases
 
         <div style="text-align: left;margin-bottom: 30px;font-size:20px;display: flex;justify-content: space-between">
             <div>
-                <span style="background-color: #ec3b1b;padding:5px;font-size:15px;margin-right:10px;">Preferred +</span>
+                <span style="background-color: #ec3b1b;padding:5px;font-size:15px;margin-right:10px;">Buyer</span>
                 {{purchases[i][8]}}
             </div>
             <span>Order ID : {{purchases[i][0]}}</span>
@@ -51,10 +51,52 @@ All Purchases
             <div style="border-bottom:2px solid #cc4d4d;">
                 <p style="width:650px;text-align: left;color:#cc1556;padding-left:10px;">
                     {{purchases[i][3]}}
+                    <button type="button" class="btn" data-toggle="modal" data-target="#updateShipmentModal"
+                            data-whatever="@mdo"
+                            style="padding:5px;border-radius: 10px;font-size:20px;background-color: rgba(78,178,80,0.51);margin-left:10px;">
+                        <span class="bi bi-pencil-square" style="font-size:25px;color:#2d0f0f;"></span>
+                    </button>
                 </p>
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="updateShipmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document" style="color:#1f1f1f;text-align: left">
+            <div class="modal-content">
+                <form action="/withdrawal" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="withdrawalModalLabel">Shipment Status</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="shipment" class="col-form-label">Change to status</label>
+
+                            <div>
+                                <select>
+                                    <option>Preparing</option>
+                                    <option>Shipping</option>
+                                    <option>Delivered</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-primary" type="submit">Change Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     {% endif %}
     {% endfor %}
 </div>
