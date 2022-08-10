@@ -448,6 +448,20 @@ def voucher():
     return render_template("voucher.html", vouchers=vouchers)
 
 
+@app.route("/redeemedVoucher", methods=["GET"])
+@require_login
+def redeemed_voucher():
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+    SELECT * FROM vouchers 
+    JOIN user_vouchers ON vouchers.id = user_vouchers.voucher_id
+    WHERE user_vouchers.user_id = %s
+    AND user_vouchers.used = 0
+    """, (session["user_id"],))
+    vouchers = cursor.fetchall()
+    return render_template("redeemedVoucher.html", vouchers=vouchers)
+
+
 # For user viewing their notifications
 @app.route("/notification")
 @require_login
@@ -638,10 +652,26 @@ def withdrawal_wallet():
 
 
 # Settings page for user
-@app.route("/settings")
+@app.route("/settings", methods=["GET", "POST"])
 @require_login
 def settings():
-    return render_template("settings.html", settings="")
+    if request.method == "POST":
+        cursor = mysql.connection.cursor()
+        cursor.execute("UPDATE users SET name = %s, address = %s, phone_number = %s, profile_picture = %s",
+                       (request.form.get("name"), request.form.get("address"), request.form.get("phone_number"),
+                        request.form.get("profile_picture"))
+                       )
+        mysql.connection.commit()
+        cursor.close()
+        flash("Updated Personal Details!")
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT name,address,phone_number, profile_picture FROM users WHERE id = %s ",
+                   (session["user_id"],))
+    personal_details = cursor.fetchone()
+    cursor.close()
+
+    return render_template("settings.html", personal_details=personal_details)
 
 
 # Changing password
@@ -965,11 +995,12 @@ def delete_voucher():
     voucher = cursor.fetchone()
 
     if not voucher:
-        return err("Voucher does not exists.",400)
+        return err("Voucher does not exists.", 400)
 
     cursor.execute("DELETE FROM vouchers WHERE id = %s", (request.form.get("id"),))
     flash("Successfully deleted voucher!")
     return redirect("/adminVoucher")
+
 
 # Admin Update Shipment Status
 @app.route("/shipmentStatus", methods=["POST"])
