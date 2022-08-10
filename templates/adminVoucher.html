@@ -1,32 +1,159 @@
 {% extends "sellerLayout.html" %}
 
 {% block title %}
-Admin Notification
+    Admin Vouchers
 {% endblock %}
 
 {% block main %}
+    <div class="d-flex justify-content-center">
+        <button type="button" class="btn" data-toggle="modal" data-target="#createVoucher" data-whatever="@mdo"
+                style="padding:15px;border-radius: 15px;margin-bottom: 20px;font-size:20px;background-color: #fa6493">
+            Create New Voucher
+            <i class="bi bi-gift-fill"
+               style="font-size:25px;margin-left:10px;color:#2d0f0f;">
+            </i>
+        </button>
+    </div>
 
-<div class="timeline">
-    {% for notification in notifications %}
-    <div class="p-4 d-flex flex-wrap gap-5" style="margin-left:80px;">
-        <div class="content p-2 d-flex gap-3 align-items-center">
-            <div style="margin-right:50px;line-height:30px;">
-                {{notification[4]}}
+    <div>
+        {% for voucher in vouchers %}
+            <div class="p-4 w-100 d-flex justify-content-center">
+                <div class="d-flex border" style="width:700px;">
+                    <div class="px-4 py-5 d-flex align-items-center"
+                         style="border-right:1px solid white;background-color: #75b775">
+                        <p style="width:150px;line-height:40px;font-size:20px;">
+                            {% if voucher[2] %}
+                                FREE SHIPPING
+                            {% elif voucher[3] %}
+                                {{ voucher[5] }} % OFF
+                            {% else %}
+                                {{ voucher[5]|myr }} OFF
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="p-3" style="text-align:left;background-color: white;width:300px;color:black;">
+                        <h4 style="line-height: 35px;color:red;">{{ voucher[1] }}</h4>
+                        <p class="mt-4">
+                            {% if voucher[3] %}
+                                {{ voucher[5] }}%
+                            {% else %}
+                                {{ voucher[5]|myr }}
+                            {% endif %}
+                            OFF
+                        </p>
+                        <div style="border:1px solid red;padding:8px;margin-top:15px;border-radius:10px;width:260px;text-align: center">
+                            Min. Spend {{ voucher[4]|myr }}
+                        </div>
+                        <p class="mt-4">Valid till {{ voucher[7].strftime("%d %b") }}</p>
+                    </div>
+
+                    <div class="p-3"
+                         style="background-color: red;width:200px;color:black;display:flex;align-items: center;justify-content: center">
+                        <form action="/deleteVoucher" method="POST">
+                            <input type="hidden" name="id" value="{{ voucher[0] }}">
+                            <div>
+                                <button type="submit" style="background-color: #ff7ef3;font-size:20px;padding:10px;">
+                                    Update
+                                </button>
+                            </div>
+
+                            <div>
+                                <button type="submit"
+                                        style="background-color: #ff7ef3;margin-top:2rem;font-size:20px;padding:10px;">
+                                    Delete
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
+        {% endfor %}
+    </div>
 
-            <div style="width:550px;text-align: left;font-size:18px;">
-                <div>
-                    <!-- Notification Title -->
-                    <small style="color:#c07a11">{{notification[2]}}</small>
+    <!--Bootstrap Modal for Creating New Voucher-->
+    <div class="modal fade" id="createVoucher" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true" style="color:black;text-align: left">
+
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Voucher Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="mt-2">
-                    <!-- Notification Content -->
-                    <small>{{notification[3]}}</small>
-                </div>
+
+                <form action="/adminVoucher" method="POST">
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Voucher Name</label>
+                            <input type="text" class="form-control" name="voucher_name">
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="message-text" class="col-form-label">Minimum Spend (RM)</label>
+                            <input type="text" class="form-control" name="min_spend">
+                        </div>
+
+                        <label for="message-text" class="col-form-label mt-3" style="margin-right: 20px;width:50%;">
+                            Free Shipment ?
+                        </label>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="is_shipment" id="inlineRadio1"
+                                   value="y">
+                            <label class="form-check-label" for="inlineRadio1">Yes</label>
+                        </div>
+
+                        <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="is_shipment" id="inlineRadio2"
+                                   value="n">
+                            <label class="form-check-label" for="inlineRadio2">No</label>
+                        </div>
+
+                        <label for="message-text" class="col-form-label mt-3" style="margin-right: 20px;width:50%;">
+                            Deduct By Percentage ?
+                        </label>
+
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="by_percentage" id="inlineRadio1"
+                                   value="y">
+                            <label class="form-check-label" for="inlineRadio1">Yes</label>
+                        </div>
+
+                        <div class="form-check form-check-inline mt-3">
+                            <input class="form-check-input" type="radio" name="by_percentage" id="inlineRadio2"
+                                   value="n">
+                            <label class="form-check-label" for="inlineRadio2">No</label>
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="message-text" class="col-form-label">Deduct Amount (RM)</label>
+                            <input type="text" class="form-control" name="deduct_amount">
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="message-text" class="col-form-label">Start date</label>
+                            <input type="date" class="form-control" name="start_date">
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="message-text" class="col-form-label">End date</label>
+                            <input type="date" class="form-control" name="end_date">
+                        </div>
+
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <input type="submit" name="update" class="btn btn-primary" value="Create New Product"/>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    {% endfor %}
-</div>
 
 {% endblock %}

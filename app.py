@@ -904,8 +904,72 @@ def admin_notification():
 @app.route("/adminVoucher", methods=["GET", "POST"])
 @require_seller_login
 def admin_voucher():
-    return render_template("adminVoucher.html")
+    if request.method == "POST":
+        # Ensure all fields are filled up
+        if not (request.form.get("voucher_name") and request.form.get("min_spend") and request.form.get(
+                "is_shipment") and request.form.get("by_percentage") and request.form.get(
+            "deduct_amount") and request.form.get("start_date") and request.form.get("end_date")):
+            return err("Please fill in all the fields", 400)
 
+        # Positive number field validation
+        try:
+            min_spend = float(request.form.get("min_spend"))
+            deduct_amount = float(request.form.get("deduct_amount"))
+        except ValueError:
+            return err("Please Provide A Valid Number of Minimum Spend / Deduct Amount", 400)
+
+        if min_spend <= 0 or deduct_amount <= 0:
+            return err("Price cannot be less than 0", 400)
+
+        # Provided radio options is not y/n
+        if request.form.get("is_shipment") not in ("y", "n") or request.form.get("by_percentage") not in ("y", "n"):
+            return err("Is Shipment / By Percentage is not a valid option", 400)
+
+        if request.form.get("is_shipment") == 'y':
+            is_shipment = 1
+        else:
+            is_shipment = 0
+
+        if request.form.get("by_percentage") == 'y':
+            by_percentage = 1
+        else:
+            by_percentage = 0
+
+        # Start date larger than end date
+        if request.form.get("start_date") > request.form.get("end_date"):
+            return err("Start Date must not be larger than end date", 400)
+
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO vouchers (name,is_shipment,by_percentage,minimum_spend,deduct_amount,start_date,end_date) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+            (request.form.get("voucher_name"), request.form.get("is_shipment"), request.form.get("by_percentage"),
+             min_spend, deduct_amount, request.form.get("start_date"), request.form.get("end_date")))
+
+        mysql.connection.commit()
+        flash("Successfully Created Voucher!")
+        cursor.close()
+
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM vouchers ORDER BY end_date")
+    vouchers = cursor.fetchall()
+    cursor.close()
+
+    return render_template("adminVoucher.html", vouchers=vouchers)
+
+
+@app.route("/deleteVoucher", methods=["POST"])
+@require_seller_login
+def delete_voucher():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM vouchers WHERE id = %s", (request.form.get("id"),))
+    voucher = cursor.fetchone()
+
+    if not voucher:
+        return err("Voucher does not exists.",400)
+
+    cursor.execute("DELETE FROM vouchers WHERE id = %s", (request.form.get("id"),))
+    flash("Successfully deleted voucher!")
+    return redirect("/adminVoucher")
 
 # Admin Update Shipment Status
 @app.route("/shipmentStatus", methods=["POST"])
