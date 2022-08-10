@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "users/layout.html" %}
 
 {% block title %}
 Home Page
@@ -7,7 +7,7 @@ Home Page
 {% block main %}
 
 <div class="mb-5">
-    <form action="/" method="POST">
+    <form action="/static" method="POST">
         <input type="text" class="form-control mx-auto w-100 mb-4" name="search_product" placeholder="Search..."
                autocomplete="false" autofocus>
     </form>

@@ -92,9 +92,9 @@ def register():
         # redirect page
 
         flash("Register Successfully!")
-        return render_template("login.html")
+        return render_template("users/login.html")
 
-    return render_template("register.html")
+    return render_template("users/register.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -124,7 +124,7 @@ def login():
         flash("Login Successful!")
         return redirect("/")
 
-    return render_template("login.html")
+    return render_template("users/login.html")
 
 
 # Main Page where show all product, or searched result by user
@@ -144,7 +144,7 @@ def index():
         items = cursor.fetchall()
 
     cursor.close()
-    return render_template("index.html", items=items)
+    return render_template("users/index.html", items=items)
 
 
 # Display Full Information of the item according to product id
@@ -172,7 +172,7 @@ def item(id):
     ratings = cursor.fetchall()
 
     cursor.close()
-    return render_template("product.html", product=product, ratings=ratings)
+    return render_template("users/product.html", product=product, ratings=ratings)
 
 
 # Cart using session
@@ -183,7 +183,7 @@ def cart():
     if "cart" not in session:
         session["cart"] = {}
         flash("No item in your cart")
-        return render_template("cart.html")
+        return render_template("users/cart.html")
 
     # Add item to cart
     if request.method == "POST":
@@ -198,7 +198,7 @@ def cart():
     # Check if cart is empty
     if len(session["cart"]) == 0:
         flash("No item in your cart")
-        return render_template("cart.html")
+        return render_template("users/cart.html")
 
     cursor = mysql.connection.cursor()
 
@@ -208,7 +208,7 @@ def cart():
     items_in_cart = cursor.fetchall()
     cursor.close()
 
-    return render_template("cart.html", items_in_cart=items_in_cart)
+    return render_template("users/cart.html", items_in_cart=items_in_cart)
 
 
 # Clear cart session after a successful payment
@@ -263,7 +263,7 @@ def checkout():
     vouchers = cursor.fetchall()
 
     cursor.close()
-    return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers=vouchers)
+    return render_template("users/payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers=vouchers)
 
 
 # Page after confirming checkout
@@ -445,7 +445,7 @@ def voucher():
     vouchers = cursor.fetchall()
     cursor.close()
 
-    return render_template("voucher.html", vouchers=vouchers)
+    return render_template("users/voucher.html", vouchers=vouchers)
 
 
 @app.route("/redeemedVoucher", methods=["GET"])
@@ -459,7 +459,7 @@ def redeemed_voucher():
     AND user_vouchers.used = 0
     """, (session["user_id"],))
     vouchers = cursor.fetchall()
-    return render_template("redeemedVoucher.html", vouchers=vouchers)
+    return render_template("users/redeemedVoucher.html", vouchers=vouchers)
 
 
 # For user viewing their notifications
@@ -470,7 +470,7 @@ def notification():
     cursor.execute("SELECT * FROM notifications WHERE user_id = %s ORDER BY notify_time DESC", (session["user_id"],))
     notifications = cursor.fetchall()
     cursor.close()
-    return render_template("notification.html", notifications=notifications)
+    return render_template("users/notification.html", notifications=notifications)
 
 
 # For chatting with seller for buyer
@@ -508,7 +508,7 @@ def chat():
 
     chat_messages = cursor.fetchall()
 
-    return render_template("chat.html", chat_messages=chat_messages)
+    return render_template("users/chat.html", chat_messages=chat_messages)
 
 
 # Post rating for an order list
@@ -553,7 +553,7 @@ def view_rating(id):
     """ % (id, session["user_id"]))
     ratings = cursor.fetchall()
     cursor.close()
-    return render_template("ratings.html", ratings=ratings)
+    return render_template("users/ratings.html", ratings=ratings)
 
 
 # Check ratings for user
@@ -570,7 +570,7 @@ def userRatings():
     ratings = cursor.fetchall()
     cursor.close()
 
-    return render_template("ratings.html", ratings=ratings)
+    return render_template("users/ratings.html", ratings=ratings)
 
 
 # Check purchase history for user
@@ -588,7 +588,7 @@ def purchase_history():
     """ % session["user_id"], )
     order_lists = cursor.fetchall()
 
-    return render_template("history.html", purchases=order_lists)
+    return render_template("users/history.html", purchases=order_lists)
 
 
 # Check wallet amount for user
@@ -599,7 +599,7 @@ def wallet():
     cursor.execute("SELECT amount FROM wallets WHERE user_id = %s" % session["user_id"], )
     cash_in_wallet = cursor.fetchone()
     cursor.close()
-    return render_template("wallet.html", cash_in_wallet=cash_in_wallet)
+    return render_template("users/wallet.html", cash_in_wallet=cash_in_wallet)
 
 
 # Topup wallet amount
@@ -671,7 +671,7 @@ def settings():
     personal_details = cursor.fetchone()
     cursor.close()
 
-    return render_template("settings.html", personal_details=personal_details)
+    return render_template("users/settings.html", personal_details=personal_details)
 
 
 # Changing password
@@ -721,7 +721,7 @@ def change_password():
 
         flash("Change password successfully!")
 
-    return render_template("password.html")
+    return render_template("users/password.html")
 
 
 # Logout and clear session
@@ -730,7 +730,7 @@ def change_password():
 def logout():
     session.clear()
     flash("You are logged out.")
-    return render_template("login.html")
+    return render_template("users/login.html")
 
 
 # Login for seller
@@ -759,7 +759,7 @@ def seller_login():
 
         return redirect("/adminPortal")
 
-    return render_template("sellerLogin.html")
+    return render_template("admin/sellerLogin.html")
 
 
 # Admin (seller) Main Page
@@ -777,7 +777,7 @@ def admin_portal():
             """)
     order_lists = cursor.fetchall()
 
-    return render_template("adminPortal.html", purchases=order_lists)
+    return render_template("admin/adminPortal.html", purchases=order_lists)
 
 
 # Admin Product Page CRUD
@@ -815,7 +815,7 @@ def admin_product():
     cursor.execute("SELECT * FROM products")
     products = cursor.fetchall()
 
-    return render_template("adminProduct.html", products=products)
+    return render_template("admin/adminProduct.html", products=products)
 
 
 # Admin Update Product
@@ -916,7 +916,7 @@ def admin_chat_id(id=1):
     chat_users = cursor.fetchall()
     cursor.close()
 
-    return render_template("adminChat.html", chat_users=chat_users, chat_messages=chat_messages)
+    return render_template("admin/adminChat.html", chat_users=chat_users, chat_messages=chat_messages)
 
 
 # Admin Notifications Page
@@ -927,7 +927,7 @@ def admin_notification():
     cursor.execute("SELECT * FROM seller_notifications ORDER BY notify_time DESC")
     notifications = cursor.fetchall()
 
-    return render_template("adminNotification.html", notifications=notifications)
+    return render_template("admin/adminNotification.html", notifications=notifications)
 
 
 # Admin Voucher CRUD
@@ -984,7 +984,7 @@ def admin_voucher():
     vouchers = cursor.fetchall()
     cursor.close()
 
-    return render_template("adminVoucher.html", vouchers=vouchers)
+    return render_template("admin/adminVoucher.html", vouchers=vouchers)
 
 
 @app.route("/deleteVoucher", methods=["POST"])
@@ -998,6 +998,9 @@ def delete_voucher():
         return err("Voucher does not exists.", 400)
 
     cursor.execute("DELETE FROM vouchers WHERE id = %s", (request.form.get("id"),))
+    mysql.connection.commit()
+    cursor.close()
+
     flash("Successfully deleted voucher!")
     return redirect("/adminVoucher")
 
@@ -1046,4 +1049,4 @@ def admin_ratings():
     """)
     ratings = cursor.fetchall()
 
-    return render_template("adminRatings.html", ratings=ratings)
+    return render_template("admin/adminRatings.html", ratings=ratings)
