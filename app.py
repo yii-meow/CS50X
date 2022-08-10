@@ -404,15 +404,15 @@ def chat():
 @require_login
 def ratings():
     if request.method == "POST":
-        if not request.form.get("total_stars"):
-            return err("Please provide rating",400)
+        if not request.form.get("rating"):
+            return err("Please provide rating", 400)
 
         if not request.form.get("ratingContent"):
             return err("Please provide rating content", 400)
 
         cursor = mysql.connection.cursor()
         cursor.execute("INSERT INTO ratings (product_id,user_id,stars,content) VALUES (%s,%s,%s,%s)",
-                       (request.form.get("product_id"), session["user_id"], request.form.get("total_stars"),
+                       (request.form.get("product_id"), session["user_id"], request.form.get("rating"),
                         request.form.get("ratingContent"),))
         mysql.connection.commit()
 
@@ -444,7 +444,7 @@ def purchase_history():
     cursor = mysql.connection.cursor()
 
     # Get Order List of the orders by joining the results
-    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.id, products.name, products.price, products.image, order_lists.quantity FROM orders
+    cursor.execute("""SELECT orders.id, orders.grand_total, orders.order_time, orders.shipment_status, products.id, products.name, products.price, products.image, order_lists.quantity,order_lists.rated FROM orders
     JOIN order_lists ON orders.id = order_lists.order_id
     JOIN products ON order_lists.product_id = products.id
     WHERE user_id = %s

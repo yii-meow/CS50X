@@ -2,7 +2,6 @@
     font-family: 'Mochiy Pop One', sans-serif;
 }
 
-/*7C616C*/
 body {
     color: white;
     background-color: #2B2D42;
@@ -73,36 +72,72 @@ i {
     z-index: 1;
 }
 
-.stars {
-    font-size: 30px;
-    margin: 0;
-    width: 40px;
-    padding: 0;
-    display: flex;
+.rating {
+    margin-top: 1.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    height: 50px;
+    line-height: 50px;
+    font-size: 50px;
 }
 
-.stars.disabled{
-    pointer-events: none;
-}
-
-.stars span {
-    opacity: 50%;
-    padding: 5px;
-}
-
-.stars:hover span {
-    opacity: 100%;
+.rating label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
     cursor: pointer;
 }
 
-.stars span:hover ~ span {
-    opacity: 50%;
+.rating label:last-child {
+    position: static;
 }
 
-.stars span.active {
-    opacity: 100;
+.rating label:nth-child(1) {
+    z-index: 5;
 }
 
-.checked {
-    color: orange;
+.rating label:nth-child(2) {
+    z-index: 4;
+}
+
+.rating label:nth-child(3) {
+    z-index: 3;
+}
+
+.rating label:nth-child(4) {
+    z-index: 2;
+}
+
+.rating label:nth-child(5) {
+    z-index: 1;
+}
+
+.rating label input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.rating label .icon {
+    margin-right: 2rem;
+    float: left;
+    color: transparent;
+}
+
+.rating label:last-child .icon {
+    margin-right: 2rem;
+    color: #000;
+}
+
+.rating:not(:hover) label input:checked ~ .icon,
+.rating:hover label:hover input ~ .icon {
+    margin-right: 2rem;
+    color: #f58416;
+}
+
+.rating label input:focus:not(:checked) ~ .icon:last-child {
+    color: #000;
+    text-shadow: 0 0 5px #09f;
 }

@@ -5,6 +5,12 @@ Chat
 {% endblock %}
 
 {% block main %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var scrollChat = document.getElementById("chat_scroll")
+        scrollChat.scrollTop = scrollChat.scrollHeight;
+    })
+</script>
 
 <div class="d-flex p-2 gap-4" style="height:85vh">
 
@@ -14,7 +20,7 @@ Chat
 
     <div class="border" style="width:85%;background-color: white;">
         <!--  Chat Content -->
-        <div style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
+        <div id="chat_scroll" style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
             {% for message in chat_messages %}
             {% if message[1] == "seller" %}
             <div style="margin-bottom:30px;">

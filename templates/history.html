@@ -5,30 +5,11 @@ History
 {% endblock %}
 
 {% block main %}
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const starWrapper = document.querySelector(".stars")
-        const stars = document.querySelectorAll(".stars span")
-
-        stars.forEach((star, clickedIdx) => {
-            star.addEventListener("click", () => {
-                starWrapper.classList.add("disabled");
-                stars.forEach((otherStar, otherIdx) => {
-                    if (otherIdx <= clickedIdx) {
-                        otherStar.classList.add("active")
-                    }
-                });
-
-                $("#total_stars").val(clickedIdx + 1)
-            })
-        })
-    })
-
-</script>
 
 <div class="p-3 d-flex flex-wrap gap-5 justify-content-center" style="max-width: 1200px;">
     {% for i in range(purchases|length) %}
     {% if (purchases[i][0] != purchases[i-1][0]) or i == 0 %}
+
     <div class="p-3 border" style="max-width:700px;background-color: #f6ad36;margin-bottom:10px;color:#381d1d;">
 
         <p style="color:black;text-align: right;padding: 8px 5px;">Time : &nbsp;{{purchases[i][2]}}</p>
@@ -76,11 +57,38 @@ History
 
             <div style="border-bottom:2px solid #cc4d4d;display: flex;width:650px;justify-content: center">
                 <p>
+                    <!-- Check if the items have been rated before -->
+
+                    <!-- Check numbers of rated order list -->
+                    {% set rate = namespace(total=0) %}
+
+                    <!--  Loop through the order list -->
+                    {% for j in range(purchases|length) %}
+                    {% if purchases[j][0] == purchases[i][0] %}
+
+                    <!-- If the order list has not been rated, increase 1-->
+                    {% if purchases[j][9] == 0 %}
+                    {% set rate.total = rate.total + 1 %}
+                    {% endif %}
+
+                    {% endif %}
+                    {% endfor %}
+
+                    <!-- If total is 0, means all the order lists has been rated, vice versa-->
+                    {% if rate.total ==0 %}
+                    <button data-toggle="modal"
+                            data-whatever="@mdo" data-target="#viewRatingModal{{purchases[i][0]}}"
+                            style="font-size:20px;background-color: red;color:white;border-radius: 10px;padding:10px 40px;border:none">
+                        View Rating
+                    </button>
+
+                    {% else %}
                     <button data-toggle="modal"
                             data-whatever="@mdo" data-target="#ratingModal{{purchases[i][0]}}"
                             style="font-size:20px;background-color: red;color:white;border-radius: 10px;padding:10px 40px;border:none">
                         Rate
                     </button>
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -105,29 +113,35 @@ History
                             <div>
                                 <select name="product_id">
                                     {% for j in range(purchases|length) %}
-                                    {% if purchases[j][0] == purchases[i][0] %}
+                                    <!-- Show orders list which has not yet been rated as option -->
+                                    {% if purchases[j][0] == purchases[i][0] and purchases[j][9] ==0 %}
                                     <option value="{{purchases[j][4]}}">{{purchases[j][5]}}</option>
                                     {% endif %}
                                     {% endfor %}
                                 </select>
                             </div>
 
-                            <div class="stars">
+                            <div class="rating">
                                 <!--  Rating Star -->
                                 {% for i in range(5) %}
-                                <span class="bi bi-star-fill checked"></span>
+                                <label>
+                                    <input type="radio" name="rating" value="{{i+1}}"/>
+
+                                    {% for j in range(i+1) %}
+                                    <span class="icon bi bi-star-fill checked"></span>
+                                    {% endfor %}
+                                </label>
                                 {% endfor %}
                             </div>
 
-                            <textarea name="ratingContent" placeholder="Rating Content"
-                                      style="margin-top:1rem;padding:5px;"></textarea>
-
+                            <div>
+                                <textarea class="form-control" id="exampleFormControlTextarea1" name="ratingContent"
+                                          rows="3" placeholder="Rating Content.."></textarea>
+                            </div>
                             <input type="hidden" name="order_id" value="{{purchases[i][0]}}"/>
-                            <input type="hidden" id="total_stars" name="total_stars"/>
                         </div>
                     </div>
-
-
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" name="submit" class="btn btn-primary">Rate</button>
