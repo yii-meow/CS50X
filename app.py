@@ -158,6 +158,7 @@ def item(id):
     SELECT ratings.stars, ratings.content, ratings.created_at, users.username FROM ratings
     JOIN users ON ratings.user_id = users.id
     WHERE product_id = %s
+    ORDER BY ratings.created_at DESC
     """ % str(id))
     ratings = cursor.fetchall()
 
@@ -238,7 +239,12 @@ def checkout():
         cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
         subtotal += cursor.fetchone()[0] * int(quantity[i])
 
-    cursor.execute("SELECT * FROM user_vouchers WHERE user_id = %s" % session["user_id"])
+    cursor.execute("""
+    SELECT * FROM user_vouchers 
+    JOIN vouchers ON voucher_id = vouchers.id 
+    WHERE user_id = %s
+    AND used = 0
+    """ % session["user_id"])
     vouchers = cursor.fetchall()
 
     cursor.close()
@@ -248,8 +254,10 @@ def checkout():
 @app.route("/payment", methods=["GET", "POST"])
 @require_login
 def payment():
-    shipment_fee = 5.0
-    tax = 0.06
+    # Fee Definition
+    shipment_fee = 5.0  # Fixed Shipment Fee
+    tax = 0.06  # Fixed Tax Rate
+    discount_rate = 1.0  # No Discount Rate (multiply 1=Same Price)
 
     cursor = mysql.connection.cursor()
     ids = request.form.getlist("id[]")
@@ -258,18 +266,63 @@ def payment():
     # Payment Process
     payment_method = request.form.get("payment_method")
 
+    # If payment is not chosen
     if not payment_method:
         return err("Please choose a payment method", 400)
 
     # Calculate Payment
     subtotal = 0
 
+    # Get the price of every product in cart
     for i in range(len(ids)):
         cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
         price = cursor.fetchone()
         subtotal += price[0] * int(quantity[i])
 
-    grand_total = ((subtotal + shipment_fee) * tax) + subtotal + shipment_fee
+    # Retrieve the voucher which is used in this transaction
+    voucher = request.form.get("voucher")
+
+    # Check voucher validity
+    if voucher:
+        cursor.execute("""
+        SELECT * FROM vouchers WHERE id IN
+        (SELECT voucher_id FROM user_vouchers 
+        WHERE user_id = %s AND voucher_id = %s AND used = 0)
+        """, (session["user_id"], int(voucher)))
+        voucher_validity = cursor.fetchone()
+
+        # if the user does not have this voucher
+        if not voucher_validity:
+            return err("Voucher is not available", 400)
+
+        # Check Minimum Spend
+        if subtotal >= voucher_validity[4]:
+            # If this voucher is for free shipping
+            if voucher_validity[2]:
+                # Deducts Shipment Fee
+                shipment_fee -= voucher_validity[5];
+
+            # If this voucher deducts grand total by percentage
+            elif voucher_validity[3]:
+                # Redefine Discount Rate Eg: ( 1 - 0.1)
+                discount_rate -= float(voucher_validity[5]) / 100
+
+            # If this voucher deducts grand total by fixed amount
+            else:
+                subtotal -= voucher_validity[5]
+
+        # Set Voucher is used by the user
+        cursor.execute("UPDATE user_vouchers SET used = 1 WHERE user_id = %s AND voucher_id = %s",
+                       (session["user_id"], int(voucher),))
+
+        # Notification for used vouchers
+        message = "Voucher ( " + voucher_validity[1] + " ) has been used."
+
+        cursor.execute("INSERT INTO notifications (user_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
+            session["user_id"], "Used Voucher", message, datetime.datetime.now(),))
+
+    # Calculate Grand Total by adding voucher, shipment fee, tax
+    grand_total = ((subtotal * discount_rate + shipment_fee) * tax) + subtotal * discount_rate + shipment_fee
 
     if payment_method == "wallet":
         # Check user wallet balance
@@ -309,11 +362,17 @@ def payment():
 
         mysql.connection.commit()
 
-    # Notification
+    # User Notification
     message = "Payment for Order ID " + str(order_id) + " is successful. We have notified the seller to ship."
+
+    seller_message = "Order Id: " + str(order_id) + " has been placed."
 
     cursor.execute("INSERT INTO notifications (user_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
         session["user_id"], "Payment is Successful", message, datetime.datetime.now(),))
+
+    # Seller Notification (Only 1 Seller at this time)
+    cursor.execute("INSERT INTO seller_notifications (seller_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
+        1, "New Order", seller_message, datetime.datetime.now(),))
 
     mysql.connection.commit()
     cursor.close()
@@ -791,6 +850,7 @@ def admin_chat_id(id=1):
         ORDER BY chat_lines.created_at DESC
         """)
     chat_users = cursor.fetchall()
+    cursor.close()
 
     return render_template("adminChat.html", chat_users=chat_users, chat_messages=chat_messages)
 
@@ -798,13 +858,48 @@ def admin_chat_id(id=1):
 @app.route("/adminNotification", methods=["GET"])
 @require_seller_login
 def admin_notification():
-    return render_template("adminNotification.html")
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM seller_notifications ORDER BY notify_time DESC")
+    notifications = cursor.fetchall()
+
+    return render_template("adminNotification.html", notifications=notifications)
 
 
 @app.route("/adminVoucher", methods=["GET", "POST"])
 @require_seller_login
 def admin_voucher():
     return render_template("adminVoucher.html")
+
+
+@app.route("/shipmentStatus", methods=["POST"])
+@require_seller_login
+def change_shipment_status():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM orders WHERE id = %s" % (request.form.get("order_id")))
+    order = cursor.fetchone()
+
+    # If order id does not exist
+    if not order:
+        return err("Order Id does not exists.", 400)
+
+    # Update Shipment Status
+    cursor.execute("UPDATE orders SET shipment_status = %s WHERE id = %s", (
+        request.form.get("shipment_status"), request.form.get("order_id"),))
+
+    # Update Shipment Time
+    if request.form.get("shipment_status") == "Shipping":
+        cursor.execute("UPDATE orders SET shipment_time = %s WHERE id = %s",
+                       (datetime.datetime.now(), request.form.get("order_id")))
+
+    elif request.form.get("shipment_status") == "Delivered":
+        cursor.execute("UPDATE orders SET delivered_time = %s WHERE id = %s",
+                       (datetime.datetime.now(), request.form.get("order_id")))
+
+    mysql.connection.commit()
+    cursor.close()
+    flash("Update Shipment Successfully!")
+
+    return redirect("/adminPortal")
 
 
 @app.route("/adminRatings", methods=["GET"])

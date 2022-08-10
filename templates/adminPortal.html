@@ -51,7 +51,7 @@ All Purchases
             <div style="border-bottom:2px solid #cc4d4d;">
                 <p style="width:650px;text-align: left;color:#cc1556;padding-left:10px;">
                     {{purchases[i][3]}}
-                    <button type="button" class="btn" data-toggle="modal" data-target="#updateShipmentModal"
+                    <button type="button" class="btn" data-toggle="modal" data-target="#updateShipmentModal{{purchases[i][0]}}"
                             data-whatever="@mdo"
                             style="padding:5px;border-radius: 10px;font-size:20px;background-color: rgba(78,178,80,0.51);margin-left:10px;">
                         <span class="bi bi-pencil-square" style="font-size:25px;color:#2d0f0f;"></span>
@@ -61,11 +61,12 @@ All Purchases
         </div>
     </div>
 
-    <div class="modal fade" id="updateShipmentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    <div class="modal fade" id="updateShipmentModal{{purchases[i][0]}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document" style="color:#1f1f1f;text-align: left">
             <div class="modal-content">
-                <form action="/withdrawal" method="POST">
+                <form action="/shipmentStatus" method="POST">
+                    <input type="hidden" name="order_id" value="{{purchases[i][0]}}">
                     <div class="modal-header">
                         <h5 class="modal-title" id="withdrawalModalLabel">Shipment Status</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -78,10 +79,10 @@ All Purchases
                             <label for="shipment" class="col-form-label">Change to status</label>
 
                             <div>
-                                <select>
-                                    <option>Preparing</option>
-                                    <option>Shipping</option>
-                                    <option>Delivered</option>
+                                <select name="shipment_status">
+                                    <option value="Preparing">Preparing</option>
+                                    <option value="Shipping">Shipping</option>
+                                    <option value="Delivered">Delivered</option>
                                 </select>
                             </div>
 

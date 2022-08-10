@@ -101,10 +101,10 @@ Payment
 
             <span style="margin-right:30px;color:red;width:200px;text-align: left;">Voucher</span>
 
-            <select name="voucher" style="width:100px;">
-                <option selected value="none">None</option>
+            <select name="voucher" style="min-width: max-content;padding:5px;">
+                <option selected value="">None</option>
                 {% for voucher in vouchers %}
-                <option value="{{voucher[1]}}">{{voucher[1]}}</option>
+                <option value="{{voucher[1]}}">{{voucher[4]}}</option>
                 {% endfor %}
             </select>
 
