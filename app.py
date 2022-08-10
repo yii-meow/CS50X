@@ -997,7 +997,11 @@ def delete_voucher():
     if not voucher:
         return err("Voucher does not exists.", 400)
 
-    cursor.execute("DELETE FROM vouchers WHERE id = %s", (request.form.get("id"),))
+    try:
+        cursor.execute("DELETE FROM vouchers WHERE id = %s", (request.form.get("id"),))
+    except:
+        return err("Voucher cannot be deleted", 400)
+
     mysql.connection.commit()
     cursor.close()
 

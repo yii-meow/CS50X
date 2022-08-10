@@ -8,7 +8,7 @@ def err(message, code=400):
             s = s.replace(old, new)
         return s
 
-    return render_template("error.html", top=code, bottom=escape(message)), code
+    return render_template("users/error.html", top=code, bottom=escape(message)), code
 
 
 def require_login(f):

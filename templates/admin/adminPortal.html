@@ -6,7 +6,9 @@ All Purchases
 
 {% block main %}
 
-<div class="p-3 d-flex flex-wrap gap-5 justify-content-center" style="max-width: 1200px;">
+<h3>All Orders</h3>
+
+<div class="p-3 mt-4 d-flex flex-wrap gap-5 justify-content-center" style="max-width: 1200px;">
     {% for i in range(purchases|length) %}
     {% if (purchases[i][0] != purchases[i-1][0]) or i == 0 %}
     <div class="p-3 border" style="max-width:700px;background-color: #f6ad36;margin-bottom:10px;color:#381d1d;">
