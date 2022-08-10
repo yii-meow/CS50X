@@ -427,6 +427,22 @@ def ratings():
     return redirect("/userRatings")
 
 
+@app.route("/viewRating/<int:id>", methods=["GET"])
+@require_login
+def view_rating(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+    SELECT * FROM ratings
+    JOIN products ON ratings.product_id = products.id
+    JOIN order_lists ON products.id = order_lists.product_id
+    WHERE order_lists.order_id = %s
+    AND ratings.user_id = %s
+    """ % (id, session["user_id"]))
+    ratings = cursor.fetchall()
+    cursor.close()
+    return render_template("ratings.html", ratings=ratings)
+
+
 @app.route("/userRatings", methods=["GET", "POST"])
 @require_login
 def userRatings():

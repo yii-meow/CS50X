@@ -76,7 +76,7 @@ History
 
                     <!-- If total is 0, means all the order lists has been rated, vice versa-->
                     {% if rate.total ==0 %}
-                    <button data-toggle="modal"
+                    <button onclick="window.open('/viewRating/{{purchases[i][0]}}')" data-toggle="modal"
                             data-whatever="@mdo" data-target="#viewRatingModal{{purchases[i][0]}}"
                             style="font-size:20px;background-color: red;color:white;border-radius: 10px;padding:10px 40px;border:none">
                         View Rating
@@ -141,7 +141,7 @@ History
                             <input type="hidden" name="order_id" value="{{purchases[i][0]}}"/>
                         </div>
                     </div>
-                    
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" name="submit" class="btn btn-primary">Rate</button>
