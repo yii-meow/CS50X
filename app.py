@@ -31,6 +31,7 @@ Session(app)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # Form Validation
     if request.method == "POST":
         if not request.form.get("username"):
             return err("Please provide username", 400)
@@ -79,6 +80,7 @@ def register():
 
         mysql.connection.commit()
 
+        # Set wallet id equivalent to user id
         wallet_id = cursor.lastrowid
 
         # create new wallet for the user after successful registration
@@ -99,6 +101,7 @@ def register():
 def login():
     session.clear()
 
+    # Form Validation
     if request.method == "POST":
         if not request.form.get("username"):
             return err("Please provide username", 400)
@@ -107,11 +110,12 @@ def login():
             return err("Please provide password", 400)
 
         cursor = mysql.connection.cursor()
+
+        # Check password matching
         cursor.execute("SELECT * FROM users WHERE username = %s", (request.form.get("username"),))
         user = cursor.fetchone()
         cursor.close()
 
-        # Check password matching
         if not user or not check_password_hash(user[2], request.form.get("password")):
             return err("Wrong username / password", 400)
 
@@ -123,29 +127,33 @@ def login():
     return render_template("login.html")
 
 
+# Main Page where show all product, or searched result by user
 @app.route("/", methods=["GET", "POST"])
 @require_login
 def index():
     if request.method == "POST":
+        # Search Product by given name
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM products WHERE name LIKE %s", ("%" + request.form.get("search_product") + "%",))
         items = cursor.fetchall()
 
     else:
+        # Return all products
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM products")
         items = cursor.fetchall()
 
     cursor.close()
-
     return render_template("index.html", items=items)
 
 
-# Display Full Information of the item
+# Display Full Information of the item according to product id
 @app.route("/items/<int:id>")
 @require_login
 def item(id):
     cursor = mysql.connection.cursor()
+
+    # Retrieve Product, and its rating general info
     cursor.execute("""
     SELECT products.id, name,price,description,image,quantity,release_date, ROUND(AVG(ratings.stars),1), COUNT(ratings.product_id),amount_of_sold FROM products
     LEFT JOIN ratings ON products.id = ratings.product_id
@@ -154,6 +162,7 @@ def item(id):
     """ % str(id), )
     product = cursor.fetchone()
 
+    # Retrieve all ratings information of the product
     cursor.execute("""
     SELECT ratings.stars, ratings.content, ratings.created_at, users.username FROM ratings
     JOIN users ON ratings.user_id = users.id
@@ -163,10 +172,10 @@ def item(id):
     ratings = cursor.fetchall()
 
     cursor.close()
-
     return render_template("product.html", product=product, ratings=ratings)
 
 
+# Cart using session
 @app.route("/cart", methods=["GET", "POST"])
 @require_login
 def cart():
@@ -202,6 +211,7 @@ def cart():
     return render_template("cart.html", items_in_cart=items_in_cart)
 
 
+# Clear cart session after a successful payment
 @app.route("/clearitem/<int:id>", methods=["POST"])
 @require_login
 def clear_item(id):
@@ -209,11 +219,13 @@ def clear_item(id):
     return redirect("/cart")
 
 
+# Checkout after confirming cart
 @app.route("/checkout", methods=["POST"])
 @require_login
 def checkout():
     cursor = mysql.connection.cursor()
 
+    # Retrieve every cart product id, and its quantity
     ids = request.form.getlist("id[]")
     quantity = request.form.getlist("quantity[]")
 
@@ -221,7 +233,7 @@ def checkout():
     cursor.execute(sql)
     items_in_cart = cursor.fetchall()
 
-    # Invalid Item ID
+    # Invalid Item ID if the result of item id cannot match the length
     if len(items_in_cart) != len(ids):
         return err("Invalid Item ID", 400)
 
@@ -230,15 +242,18 @@ def checkout():
         if int(quantity[i]) <= 0:
             return err("Invalid Quantity of Item", 400)
 
+        # Out of Stock
         elif int(quantity[i]) > items_in_cart[i][5]:
             return err("No enough stock to buy", 400)
 
     # Calculate Subtotal
     subtotal = 0
     for i in range(len(ids)):
+        # Retrieve the price of the product and add into subtotal
         cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
         subtotal += cursor.fetchone()[0] * int(quantity[i])
 
+    # Retrieve vouchers options for the user
     cursor.execute("""
     SELECT * FROM user_vouchers 
     JOIN vouchers ON voucher_id = vouchers.id 
@@ -251,6 +266,7 @@ def checkout():
     return render_template("payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers=vouchers)
 
 
+# Page after confirming checkout
 @app.route("/payment", methods=["GET", "POST"])
 @require_login
 def payment():
@@ -329,20 +345,21 @@ def payment():
         cursor.execute("SELECT amount FROM wallets WHERE user_id = %s", (session["user_id"],))
         balance = cursor.fetchone()
 
+        # Insufficient wallet balance validation
         if balance[0] < grand_total:
             return err("Insufficient Balance in wallet", 400)
 
         cursor.execute("UPDATE wallets SET amount = amount - %s WHERE user_id = %s", (grand_total, session["user_id"],))
         mysql.connection.commit()
 
-    # Create New Order
+    # Create New Order after successful payment
     cursor.execute(
         "INSERT INTO orders (user_id, order_time,grand_total) VALUES (%s,%s,%s)",
         (session["user_id"], datetime.datetime.now(), grand_total))
 
     mysql.connection.commit()
 
-    # Retrieve Newly Generated Order ID
+    # Retrieve Newly Generated Order ID to put in order lists
     order_id = cursor.lastrowid
 
     # Record Order Lists for the Order
@@ -364,13 +381,11 @@ def payment():
 
     # User Notification
     message = "Payment for Order ID " + str(order_id) + " is successful. We have notified the seller to ship."
-
-    seller_message = "Order Id: " + str(order_id) + " has been placed."
-
     cursor.execute("INSERT INTO notifications (user_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
         session["user_id"], "Payment is Successful", message, datetime.datetime.now(),))
 
     # Seller Notification (Only 1 Seller at this time)
+    seller_message = "Order Id: " + str(order_id) + " has been placed."
     cursor.execute("INSERT INTO seller_notifications (seller_id,title,message,notify_time) VALUES (%s,%s,%s,%s)", (
         1, "New Order", seller_message, datetime.datetime.now(),))
 
@@ -384,6 +399,7 @@ def payment():
     return redirect("/history")
 
 
+# Let user claim voucher
 @app.route("/voucher", methods=["GET", "POST"])
 @require_login
 def voucher():
@@ -432,6 +448,7 @@ def voucher():
     return render_template("voucher.html", vouchers=vouchers)
 
 
+# For user viewing their notifications
 @app.route("/notification")
 @require_login
 def notification():
@@ -442,6 +459,7 @@ def notification():
     return render_template("notification.html", notifications=notifications)
 
 
+# For chatting with seller for buyer
 @app.route("/chat", methods=["GET", "POST"])
 @require_login
 def chat():
@@ -479,6 +497,7 @@ def chat():
     return render_template("chat.html", chat_messages=chat_messages)
 
 
+# Post rating for an order list
 @app.route("/ratings", methods=["POST"])
 @require_login
 def ratings():
@@ -506,6 +525,7 @@ def ratings():
     return redirect("/userRatings")
 
 
+# View specific rating from an order list
 @app.route("/viewRating/<int:id>", methods=["GET"])
 @require_login
 def view_rating(id):
@@ -522,6 +542,7 @@ def view_rating(id):
     return render_template("ratings.html", ratings=ratings)
 
 
+# Check ratings for user
 @app.route("/userRatings", methods=["GET", "POST"])
 @require_login
 def userRatings():
@@ -538,6 +559,7 @@ def userRatings():
     return render_template("ratings.html", ratings=ratings)
 
 
+# Check purchase history for user
 @app.route("/history")
 @require_login
 def purchase_history():
@@ -555,6 +577,7 @@ def purchase_history():
     return render_template("history.html", purchases=order_lists)
 
 
+# Check wallet amount for user
 @app.route("/wallet")
 @require_login
 def wallet():
@@ -565,6 +588,7 @@ def wallet():
     return render_template("wallet.html", cash_in_wallet=cash_in_wallet)
 
 
+# Topup wallet amount
 @app.route("/topup", methods=["POST"])
 @require_login
 def topup_wallet():
@@ -586,6 +610,7 @@ def topup_wallet():
     return redirect("/wallet")
 
 
+# Withdraw cash from wallet
 @app.route("/withdrawal", methods=["POST"])
 @require_login
 def withdrawal_wallet():
@@ -612,12 +637,14 @@ def withdrawal_wallet():
     return redirect("/wallet")
 
 
+# Settings page for user
 @app.route("/settings")
 @require_login
 def settings():
     return render_template("settings.html", settings="")
 
 
+# Changing password
 @app.route("/password", methods=["GET", "POST"])
 @require_login
 def change_password():
@@ -667,6 +694,7 @@ def change_password():
     return render_template("password.html")
 
 
+# Logout and clear session
 @app.route("/logout")
 @require_login
 def logout():
@@ -675,6 +703,7 @@ def logout():
     return render_template("login.html")
 
 
+# Login for seller
 @app.route("/seller_login", methods=["GET", "POST"])
 def seller_login():
     session.clear()
@@ -703,6 +732,7 @@ def seller_login():
     return render_template("sellerLogin.html")
 
 
+# Admin (seller) Main Page
 @app.route("/adminPortal", methods=["GET"])
 @require_seller_login
 def admin_portal():
@@ -720,6 +750,7 @@ def admin_portal():
     return render_template("adminPortal.html", purchases=order_lists)
 
 
+# Admin Product Page CRUD
 @app.route("/adminProduct", methods=["GET", "PUT", "POST", "DELETE"])
 @require_seller_login
 def admin_product():
@@ -757,6 +788,7 @@ def admin_product():
     return render_template("adminProduct.html", products=products)
 
 
+# Admin Update Product
 @app.route("/updateProduct", methods=["POST"])
 @require_seller_login
 def update_product():
@@ -791,6 +823,7 @@ def update_product():
     return redirect("/adminProduct")
 
 
+# Admin Delete Product
 @app.route("/deleteProduct", methods=["POST"])
 @require_seller_login
 def delete_product():
@@ -808,6 +841,7 @@ def delete_product():
     return redirect("/adminProduct")
 
 
+# Admin Chat with user
 @app.route("/adminChat", methods=["GET", "POST"])
 @app.route("/adminChat/<int:id>", methods=["GET", "POST"])
 @require_seller_login
@@ -855,6 +889,7 @@ def admin_chat_id(id=1):
     return render_template("adminChat.html", chat_users=chat_users, chat_messages=chat_messages)
 
 
+# Admin Notifications Page
 @app.route("/adminNotification", methods=["GET"])
 @require_seller_login
 def admin_notification():
@@ -865,12 +900,14 @@ def admin_notification():
     return render_template("adminNotification.html", notifications=notifications)
 
 
+# Admin Voucher CRUD
 @app.route("/adminVoucher", methods=["GET", "POST"])
 @require_seller_login
 def admin_voucher():
     return render_template("adminVoucher.html")
 
 
+# Admin Update Shipment Status
 @app.route("/shipmentStatus", methods=["POST"])
 @require_seller_login
 def change_shipment_status():
@@ -902,6 +939,7 @@ def change_shipment_status():
     return redirect("/adminPortal")
 
 
+# Admin Check Ratings
 @app.route("/adminRatings", methods=["GET"])
 @require_seller_login
 def admin_ratings():
