@@ -66,4 +66,4 @@ and getting inaccurate data.
 <hr/>
 
 #### Entity Relationship Diagram (ERD)
-![](C:\Users\yikso\Downloads\erd.jpg)
+![](./erd.jpg)
