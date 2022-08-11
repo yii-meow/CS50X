@@ -20,8 +20,8 @@ Payment
             </p>
 
             <p style="font-size:13px;">
-                <span style="color:black;">CHONG YIK SOON (+60) 129646220</span>
-                <span style="color:#3a3939;margin-left:15px;">No 9, Jalan Lp 8/15, Taman Lestari Perdana, Petaling Jaya, 43300 Selangor</span>
+                <span style="color:black;">{{ personal_details[0] }} {{ personal_details[2] }}</span>
+                <span style="color:#3a3939;margin-left:15px;">{{ personal_details[1] }}</span>
             </p>
         </div>
 
@@ -49,7 +49,7 @@ Payment
                 <div style="width:200px">
                     <!-- Quantity -->
                     <div style="margin-left:30px;display:flex;color:black;">
-                        <input name="quantity[]" type="text" value="{{session['cart'][item[0]|string]}}"
+                        <input name="quantity[]" type="text" value="{{ quantity[loop.index-1] }}"
                                style="width:50px;margin-left:10px;margin-right:10px;text-align:center;background-color: white"
                                readonly>
                     </div>
@@ -57,7 +57,7 @@ Payment
 
                 <div style="width:300px;text-align: right">
                     <!-- Price -->
-                    {{(item[2] * session['cart'][item[0]|string])|myr}}
+                    {{(item[2] * (quantity[loop.index-1]|float))|myr}}
                 </div>
             </div>
 

@@ -259,11 +259,19 @@ def checkout():
     JOIN vouchers ON voucher_id = vouchers.id 
     WHERE user_id = %s
     AND used = 0
-    """ % session["user_id"])
+    AND vouchers.minimum_spend <= %s
+    """, (session["user_id"], subtotal,))
     vouchers = cursor.fetchall()
 
+    cursor.execute("SELECT name, address, phone_number FROM users WHERE id = %s", (session["user_id"],))
+    personal_details = cursor.fetchone()
+
+    if personal_details[0] is None or personal_details[1] is None or personal_details[2] is None:
+        return err("Please fill up your personal details first", 400)
+
     cursor.close()
-    return render_template("users/payment.html", items_in_cart=items_in_cart, subtotal=subtotal, vouchers=vouchers)
+    return render_template("users/payment.html", items_in_cart=items_in_cart, quantity=quantity, subtotal=subtotal,
+                           vouchers=vouchers, personal_details=personal_details)
 
 
 # Page after confirming checkout
@@ -311,7 +319,7 @@ def payment():
         if not voucher_validity:
             return err("Voucher is not available", 400)
 
-        # Check Minimum Spend
+        # Check Meeting of Minimum Spend Condition
         if subtotal >= voucher_validity[4]:
             # If this voucher is for free shipping
             if voucher_validity[2]:
@@ -326,6 +334,9 @@ def payment():
             # If this voucher deducts grand total by fixed amount
             else:
                 subtotal -= voucher_validity[5]
+
+        else:
+            return err("Subtotal doesn't meet minimum spend condition", 400)
 
         # Set Voucher is used by the user
         cursor.execute("UPDATE user_vouchers SET used = 1 WHERE user_id = %s AND voucher_id = %s",
@@ -350,14 +361,11 @@ def payment():
             return err("Insufficient Balance in wallet", 400)
 
         cursor.execute("UPDATE wallets SET amount = amount - %s WHERE user_id = %s", (grand_total, session["user_id"],))
-        mysql.connection.commit()
 
     # Create New Order after successful payment
     cursor.execute(
         "INSERT INTO orders (user_id, order_time,grand_total) VALUES (%s,%s,%s)",
         (session["user_id"], datetime.datetime.now(), grand_total))
-
-    mysql.connection.commit()
 
     # Retrieve Newly Generated Order ID to put in order lists
     order_id = cursor.lastrowid
@@ -370,14 +378,10 @@ def payment():
         cursor.execute("INSERT INTO order_lists (order_id,product_id,quantity,subtotal) VALUES (%s,%s,%s,%s)",
                        (order_id, (ids[i]), (quantity[i]), price[0] * int(quantity[i])))
 
-        mysql.connection.commit()
-
         # Update product Quantity and amount of sold
         cursor.execute(
             "UPDATE products SET quantity = quantity - %s, amount_of_sold = amount_of_sold + %s WHERE id = %s",
             (int(quantity[i]), int(quantity[i]), ids[i]), )
-
-        mysql.connection.commit()
 
     # User Notification
     message = "Payment for Order ID " + str(order_id) + " is successful. We have notified the seller to ship."
@@ -392,7 +396,7 @@ def payment():
     mysql.connection.commit()
     cursor.close()
 
-    # Clear cart
+    # Clear cart after successful payment
     session["cart"] = {}
     flash("Payment Successful")
 
@@ -459,6 +463,7 @@ def redeemed_voucher():
     AND user_vouchers.used = 0
     """, (session["user_id"],))
     vouchers = cursor.fetchall()
+    cursor.close()
     return render_template("users/redeemedVoucher.html", vouchers=vouchers)
 
 
@@ -507,6 +512,7 @@ def chat():
     """ % session["user_id"])
 
     chat_messages = cursor.fetchall()
+    cursor.close()
 
     return render_template("users/chat.html", chat_messages=chat_messages)
 
@@ -587,6 +593,7 @@ def purchase_history():
     ORDER BY orders.order_time DESC
     """ % session["user_id"], )
     order_lists = cursor.fetchall()
+    cursor.close()
 
     return render_template("users/history.html", purchases=order_lists)
 
@@ -657,10 +664,11 @@ def withdrawal_wallet():
 def settings():
     if request.method == "POST":
         cursor = mysql.connection.cursor()
-        cursor.execute("UPDATE users SET name = %s, address = %s, phone_number = %s, profile_picture = %s",
-                       (request.form.get("name"), request.form.get("address"), request.form.get("phone_number"),
-                        request.form.get("profile_picture"))
-                       )
+        cursor.execute(
+            "UPDATE users SET name = %s, address = %s, phone_number = %s, profile_picture = %s WHERE id = %s",
+            (request.form.get("name"), request.form.get("address"), request.form.get("phone_number"),
+             request.form.get("profile_picture"), session["user_id"])
+        )
         mysql.connection.commit()
         cursor.close()
         flash("Updated Personal Details!")
@@ -706,8 +714,6 @@ def change_password():
         # update user password
         cursor.execute("UPDATE users SET password_hash = %s WHERE id = %s",
                        (generate_password_hash(request.form.get("password")), session["user_id"],))
-
-        mysql.connection.commit()
 
         # Notification
         message = "You have changed your password. Doesn't recognize this? Contact Us."
@@ -776,6 +782,7 @@ def admin_portal():
             ORDER BY orders.order_time DESC
             """)
     order_lists = cursor.fetchall()
+    cursor.close()
 
     return render_template("admin/adminPortal.html", purchases=order_lists)
 
@@ -814,6 +821,7 @@ def admin_product():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM products")
     products = cursor.fetchall()
+    cursor.close()
 
     return render_template("admin/adminProduct.html", products=products)
 
@@ -926,6 +934,7 @@ def admin_notification():
     cursor = mysql.connection.cursor()
     cursor.execute("SELECT * FROM seller_notifications ORDER BY notify_time DESC")
     notifications = cursor.fetchall()
+    cursor.close()
 
     return render_template("admin/adminNotification.html", notifications=notifications)
 
@@ -1052,5 +1061,6 @@ def admin_ratings():
     ORDER BY ratings.created_at DESC
     """)
     ratings = cursor.fetchall()
+    cursor.close()
 
     return render_template("admin/adminRatings.html", ratings=ratings)

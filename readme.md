@@ -55,7 +55,7 @@ through here. The seller will not miss any orders at a smaller chance, and provi
 experience. On the voucher page, seller can make a new voucher.
 <hr/>
 
-#### Validation:
+#### Validation
 
 In my opinion, validation is necessary for every web application.
 Thus, I implement it at anywhere where data corruption or errors may happen, this may include
@@ -63,3 +63,7 @@ some typo, falsify data intentionally, or value error such as filling up charact
 Thus, I have placed a lot of effort on validation, so that it can prevent my database to go wrong, server go downs,
 getting sql injection attack,
 and getting inaccurate data.
+<hr/>
+
+#### Entity Relationship Diagram (ERD)
+![](C:\Users\yikso\Downloads\erd.jpg)
