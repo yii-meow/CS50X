@@ -1,5 +1,5 @@
-./flask_session
-./venv
-./.gitattributes
+flask_session
+venv
+.gitattributes
 .idea
 .gitignore
