@@ -51,66 +51,67 @@ payment gateway, it's sorely made for this project virtually only.
 
 ![](mdpic/users/user_product.png)
 
-5. Cart
+5. Ratings in Product Page
+
+![](mdpic/users/user_product_ratings.png)
+
+6. Cart
 
 ![](mdpic/users/user_cart.png)
 
-6. Payment Page
+7. Payment Page
 
 ![](mdpic/users/user_payment.png)
 
-7. Purchase History
+8. Purchase History
 
 ![](mdpic/users/user_purchase.png)
 
-8. Notification Page
+9. Notification Page
 
 ![](mdpic/users/user_notification.png)
 
-
-9. Chat
+10. Chat
 
 ![](mdpic/users/user_chat.png)
 
-10. Claim Voucher Page
+11. Claim Voucher Page
 
 ![](mdpic/users/user_claim_voucher.png)
 
-11. Rate Product by Bootstrap Modal
+12. Rate Product by Bootstrap Modal
 
 ![](mdpic/users/user_rate.png)
 
-12. Check Previous Ratings
+13. Check Previous Ratings
 
 ![](mdpic/users/user_ratings.png)
 
-13. Wallet
+14. Wallet
 
 ![](mdpic/users/user_wallet.png)
 
----
-
-14. Deposit & Withdraw
+15. Deposit & Withdraw
 
 ![](mdpic/users/user_deposit_withdraw.png)
 
-15. Check redeemed voucher
+16. Check redeemed voucher
 
 ![](mdpic/users/user_redeemed_vouchers.png)
 
-16. Personal Details
+17. Personal Details
 
 ![](mdpic/users/user_personal_details.png)
 
-17. Edit Personal Details
+18. Edit Personal Details
 
 ![](mdpic/users/user_edit_personal_details.png)
 
-18. Change Password
+19. Change Password
 
 ![](mdpic/users/user_change_password.png)
 
-19. Navbar
+20. Navbar
 
 ![](mdpic/users/user_navbar.png)
 
@@ -174,6 +175,9 @@ experience. On the voucher page, seller can make a new voucher.
 11. Update Shipment Status (at main page)
 ![](./mdpic/admin/admin_update_shipment.png)
 
+12. Navbar
+![](./mdpic/admin/admin_navbar.png)
+
 ---
 
 #### Validation
@@ -204,4 +208,4 @@ and getting inaccurate data.
 
 
 #### Entity Relationship Diagram (ERD)
-![](./erd.jpg)
+![](mdpic/erd.jpg)
