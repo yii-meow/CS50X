@@ -188,6 +188,15 @@ def cart():
     # Add item to cart
     if request.method == "POST":
         id = (request.form.get("id"))
+
+        try:
+            quantity = int(request.form.get("quantity"))
+        except ValueError:
+            return err("Quantity must be an integer", 400)
+
+        if quantity <= 0:
+            return err("Quantity must be greter than 0", 400)
+
         if id:
             if id in session["cart"]:
                 session["cart"][id] += int(request.form.get("quantity"))
@@ -227,6 +236,7 @@ def checkout():
 
     # Retrieve every cart product id, and its quantity
     ids = request.form.getlist("id[]")
+
     quantity = request.form.getlist("quantity[]")
 
     sql = """SELECT * FROM products where id in (""" + ",".join(list(ids)) + """)"""
@@ -239,11 +249,17 @@ def checkout():
 
     # Invalid Quantity
     for i in range(len(ids)):
-        if int(quantity[i]) <= 0:
+
+        try:
+            quantity[i] = int(quantity[i])
+        except ValueError:
+            return err("Please make sure all quantity are integer", 400)
+
+        if quantity[i] <= 0:
             return err("Invalid Quantity of Item", 400)
 
         # Out of Stock
-        elif int(quantity[i]) > items_in_cart[i][5]:
+        elif quantity[i] > items_in_cart[i][5]:
             return err("No enough stock to buy", 400)
 
     # Calculate Subtotal
@@ -251,7 +267,7 @@ def checkout():
     for i in range(len(ids)):
         # Retrieve the price of the product and add into subtotal
         cursor.execute("SELECT price FROM products WHERE id = %s" % ids[i])
-        subtotal += cursor.fetchone()[0] * int(quantity[i])
+        subtotal += cursor.fetchone()[0] * quantity[i]
 
     # Retrieve vouchers options for the user
     cursor.execute("""

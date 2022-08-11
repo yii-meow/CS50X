@@ -16,9 +16,9 @@ Password Settings
 </div>
 
 <div style="display: grid;grid-template-columns: 1fr 1fr;margin-top:50px;row-gap:1rem;font-size:19px;padding:25px;background-color:white;color:#fc4747;">
-    <div data-toggle="modal" data-target="#topupModal" style="cursor: pointer">
+    <div data-toggle="modal" data-target="#depositModal" style="cursor: pointer">
         <i class="bi bi-wallet2" style="color:red;font-size:30px;"></i>
-        <p style="margin-top:10px;">Topup</p>
+        <p style="margin-top:10px;">Deposit</p>
     </div>
 
     <div data-toggle="modal" data-target="#withdrawalModal" style="cursor: pointer">
@@ -28,13 +28,13 @@ Password Settings
 
 </div>
 
-<div class="modal fade" id="topupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+<div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document" style="color:#1f1f1f;text-align: left">
         <div class="modal-content">
             <form action="/topup" method="POST">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="topupModalLabel">Topup</h5>
+                    <h5 class="modal-title" id="topupModalLabel">Deposit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -42,13 +42,13 @@ Password Settings
                 <div class="modal-body">
 
                     <div class="form-group">
-                        <label for="amount" class="col-form-label">Topup Amount :</label>
+                        <label for="amount" class="col-form-label">Deposit Amount :</label>
                         <input type="number" class="form-control" id="amount" name="amount">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button class="btn btn-primary" type="submit">Topup</button>
+                    <button class="btn btn-primary" type="submit">Deposit</button>
                 </div>
             </form>
         </div>
