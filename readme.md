@@ -206,6 +206,5 @@ and getting inaccurate data.
 
 ---
 
-
 #### Entity Relationship Diagram (ERD)
 ![](mdpic/erd.jpg)
