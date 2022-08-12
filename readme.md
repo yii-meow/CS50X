@@ -249,7 +249,7 @@ and getting inaccurate data.
 
 `$ sudo pip install -r requirements.txt`
 
-> Create .env file in the main directory and put these key and values inside
+> Create .env file in the main directory and put these keys and values inside it, you can change it to your own settings as well, these are the default values
 
 `mysql_host=localhost`
 
