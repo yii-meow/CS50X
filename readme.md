@@ -5,8 +5,8 @@
 ### Description
 
 This is an E-commerce web application which is build
-by using Python Flask as backend, and
-simple HTML, CSS, and JS at frontend. MySQL is the backbone in this web application,
+by using Python Flask as backend, and Jinja2,
+CSS, and JS at frontend. MySQL is the backbone in this web application,
 which it acts as a database for me to access and manage data.
 
 This web application help both user and seller to gain a lot of advantages, which
