@@ -1,8 +1,8 @@
 # Yimmerce Web Applicaion
 
-### Video Demo :
+## Video Demo :
 
-### Description:
+## Description
 
 This is an E-commerce web application which is build
 by using Python Flask as backend, and
@@ -17,7 +17,12 @@ a live chat between user and seller, vouchers for discounting price, and user wa
 
 ---
 
-#### User:
+## Table of Content
+
+- [User](#User)
+- [Admin](#Admin)
+
+#### User
 
 There are many operations can be performed by this role. User can make an order through this web application, checking
 the product at the main page,
@@ -117,7 +122,8 @@ payment gateway, it's sorely made for this project virtually only.
 ![](mdpic/users/user_navbar.png)
 
 ---
-#### Seller:
+
+#### Admin
 
 Seller is privileged to perform almost all the CRUD (Create, Read, Update, Delete) available such
 as products and vouchers. In this web application, everything
