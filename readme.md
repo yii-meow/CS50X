@@ -249,15 +249,14 @@ and getting inaccurate data.
 
 `$ sudo pip install -r requirements.txt`
 
-`$ flask start`
-
 > Create .env file in the main directory and put these key and values inside
 
-`mysql_host = `
+`mysql_host=localhost`
 
-`mysql_user = `
+`mysql_user=root`
 
-`mysql_password = `
+`mysql_password=`
 
-`mysql_db = `
+`mysql_db=yimmerce`
 
+`$ flask start`
