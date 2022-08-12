@@ -21,8 +21,8 @@ a live chat between user and seller, vouchers for discounting price, and user wa
 - [User](#User)
 - [Admin](#Admin)
 - [Validation](#Validation)
-- [ERD](#Entity Relationship Diagram \(ERD\))
-- [Setting Up Project](#Setting Up This Project)
+- [ERD](#Entity-Relationship-Diagram-\(ERD\))
+- [Setting Up Project](#Setting-Up-This-Project)
 
 ---
 
