@@ -1,32 +1,33 @@
 {% extends "users/layout.html" %}
 
 {% block title %}
-Notification
+    Notification
 {% endblock %}
 
 {% block main %}
+    <h3>Notifications</h3>
 
-<div class="timeline">
-    {% for notification in notifications %}
-    <div class="p-4 d-flex flex-wrap gap-5" style="margin-left:80px;">
-        <div class="content p-2 d-flex gap-3 align-items-center">
-            <div style="margin-right:50px;line-height:30px;">
-                {{notification[4]}}
-            </div>
+    <div class="timeline mt-4">
+        {% for notification in notifications %}
+            <div class="p-4 d-flex flex-wrap gap-5" style="margin-left:80px;">
+                <div class="content p-2 d-flex gap-3 align-items-center">
+                    <div style="margin-right:50px;line-height:30px;">
+                        {{ notification[4] }}
+                    </div>
 
-            <div style="width:550px;text-align: left;font-size:18px;">
-                <div>
-                    <!-- Notification Title -->
-                    <small style="color:#c07a11">{{notification[2]}}</small>
-                </div>
-                <div class="mt-2">
-                    <!-- Notification Content -->
-                    <small>{{notification[3]}}</small>
+                    <div style="width:550px;text-align: left;font-size:18px;">
+                        <div>
+                            <!-- Notification Title -->
+                            <small style="color:#c07a11">{{ notification[2] }}</small>
+                        </div>
+                        <div class="mt-2">
+                            <!-- Notification Content -->
+                            <small>{{ notification[3] }}</small>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
 {% endblock %}

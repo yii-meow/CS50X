@@ -1,12 +1,14 @@
 {% extends "admin/sellerLayout.html" %}
 
 {% block title %}
-Notification
+Admin Notification
 {% endblock %}
 
 {% block main %}
 
-<div class="timeline">
+    <h3>Admin Notification</h3>
+
+<div class="timeline mt-4">
     {% for notification in notifications %}
     <div class="p-4 d-flex flex-wrap gap-5" style="margin-left:80px;">
         <div class="content p-2 d-flex gap-3 align-items-center">

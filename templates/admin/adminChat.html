@@ -1,64 +1,68 @@
 {% extends "admin/sellerLayout.html" %}
 
 {% block title %}
-Admin Chat
+    Admin Chat
 {% endblock %}
 {% block main %}
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var scrollChat = document.getElementById("chat_scroll")
-        scrollChat.scrollTop = scrollChat.scrollHeight;
-    })
-</script>
+    <script>
+        {#  Set Chat Window Scroll to the most bottom (latest message) #}
+        document.addEventListener("DOMContentLoaded", function () {
+            var scrollChat = document.getElementById("chat_scroll")
+            scrollChat.scrollTop = scrollChat.scrollHeight;
+        })
+    </script>
 
-<div class="d-flex p-2 gap-4" style="height:85vh;">
+    <h3>Admin Chat</h3>
 
-    <div style="width:20%">
-        {% for chat_user in chat_users %}
-        <div style="padding:10px;background-color: white;color:black;height:max-content;border:2px solid black;margin-bottom: 2rem;cursor: pointer"
-             onclick="window.open('/adminChat/{{chat_user[1]}}','_self')">
-            {{chat_user[0]}}
-        </div>
-        {% endfor %}
-    </div>
+    <div class="d-flex p-2 gap-4 mt-4" style="height:85vh;">
 
-    {% if chat_messages %}
-    <div class="border" style="width:80%;background-color: white;">
-        <!--  Chat Content -->
-        <div id="chat_scroll" style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
-            {% for message in chat_messages %}
-            {% if message[1] == "seller" %}
-            <div style="margin-bottom:30px;">
-                <p style="text-align: left;border:1px solid white;border-radius:5px;width:max-content;padding:10px;background-color: #ab202e;">
-                    {{message[0]}}
-                </p>
-                <p style="color:black;font-size:12px;text-align: left">{{message[2]}}</p>
-            </div>
-
-            {% else %}
-            <div>
-                <div style="width:100%;display: flex;justify-content: end">
-                    <p style="border:1px solid white;width:max-content;max-width:700px;border-radius:5px;padding:10px;background-color: #477985;text-align: left;word-break: break-word">
-                        {{message[0]}}
-                    </p>
+        <div style="width:20%">
+            {% for chat_user in chat_users %}
+                <div style="padding:10px;background-color: white;color:black;height:max-content;border:2px solid black;margin-bottom: 2rem;cursor: pointer"
+                     onclick="window.open('/adminChat/{{ chat_user[1] }}','_self')">
+                    {{ chat_user[0] }}
                 </div>
-                <p style="color:black;font-size:12px;text-align: right;">{{message[2]}}</p>
-            </div>
-            {% endif %}
             {% endfor %}
         </div>
 
+        {% if chat_messages %}
+            <div class="border" style="width:80%;background-color: white;">
+                <!--  Chat Content -->
+                <div id="chat_scroll" style="height:85%;overflow: auto; border-bottom:1px solid grey;padding:20px;">
+                    {% for message in chat_messages %}
+                        {% if message[1] == "seller" %}
+                            <div style="margin-bottom:30px;">
+                                <p style="text-align: left;border:1px solid white;border-radius:5px;width:max-content;padding:10px;background-color: #ab202e;">
+                                    {{ message[0] }}
+                                </p>
+                                <p style="color:black;font-size:12px;text-align: left">{{ message[2] }}</p>
+                            </div>
 
-        <!-- Sending Message -->
-        <form action="/adminChat/{{chat_messages[0][3]}}" method="POST">
-            <input type="text" name="chat_message" placeholder="Type a message here" autocomplete="false" autofocus
-                   style="border:none;outline:none;background-color: transparent;color:white;float:left;padding:15px;color:black;width:100%;"/>
-            <button type="submit" style="float: right;padding:7px;margin:10px 15px;">Send</button>
-        </form>
+                        {% else %}
+                            <div>
+                                <div style="width:100%;display: flex;justify-content: end">
+                                    <p style="border:1px solid white;width:max-content;max-width:700px;border-radius:5px;padding:10px;background-color: #477985;text-align: left;word-break: break-word">
+                                        {{ message[0] }}
+                                    </p>
+                                </div>
+                                <p style="color:black;font-size:12px;text-align: right;">{{ message[2] }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+
+                <!-- Sending Message -->
+                <form action="/adminChat/{{ chat_messages[0][3] }}" method="POST">
+                    <input type="text" name="chat_message" placeholder="Type a message here" autocomplete="false"
+                           autofocus
+                           style="border:none;outline:none;background-color: transparent;color:white;float:left;padding:15px;color:black;width:100%;"/>
+                    <button type="submit" style="float: right;padding:7px;margin:10px 15px;">Send</button>
+                </form>
+            </div>
+        {% endif %}
+
     </div>
-    {% endif %}
-
-</div>
 
 {% endblock %}

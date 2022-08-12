@@ -209,3 +209,34 @@ and getting inaccurate data.
 
 #### Entity Relationship Diagram (ERD)
 ![](mdpic/erd.jpg)
+
+---
+
+### Setting Up This Project
+
+`git clone https://github.com/yii-meow/CS50X.git`
+
+> cd into this project directory
+
+`$ sudo apt install mysql-server`
+
+`$ sudo service mysql start`
+
+`$ sudo apt install pip`
+
+`$ sudo apt install libmysqlclient-dev`
+
+`$ sudo mysql -uroot`
+
+`mysql> create schema yimmerce`
+
+`mysql> use yimmerce`
+
+> copy yimmerce.sql into mysql terminal
+
+`mysql> exit`
+
+`$ sudo pip install -r requirements.txt`
+
+`$ flask start`
+

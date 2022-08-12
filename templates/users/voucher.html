@@ -1,60 +1,63 @@
 {% extends "users/layout.html" %}
 
 {% block title %}
-Sign In
+    Sign In
 {% endblock %}
 
 {% block main %}
 
-<h2>Vouchers</h2>
+    <h2>Vouchers</h2>
 
-{% if vouchers %}
-<div class="d-flex flex-wrap justify-content-center">
-    {% for voucher in vouchers %}
-    <div class="p-4">
-        <div class="d-flex border" style="width:600px;">
-            <div class="px-4 py-5 d-flex align-items-center"
-                 style="border-right:1px solid white;background-color: #75b775">
-                <p style="width:150px;line-height:40px;font-size:20px;">
-                    {% if voucher[2] %}
-                    FREE SHIPPING
-                    {% elif voucher[3] %}
-                    {{voucher[5]}} % OFF
-                    {% else %}
-                    {{voucher[5]|myr}} OFF
-                    {% endif %}
-                </p>
-            </div>
+    {% if vouchers %}
+        <div class="d-flex flex-wrap justify-content-center">
+            <div>
+                {% for voucher in vouchers %}
+                    <div class="p-4">
+                        <div class="d-flex border" style="width:600px;">
+                            <div class="px-4 py-5 d-flex align-items-center"
+                                 style="border-right:1px solid white;background-color: #75b775">
+                                <p style="width:150px;line-height:40px;font-size:20px;">
+                                    {% if voucher[2] %}
+                                        FREE SHIPPING
+                                    {% elif voucher[3] %}
+                                        {{ voucher[5] }} % OFF
+                                    {% else %}
+                                        {{ voucher[5]|myr }} OFF
+                                    {% endif %}
+                                </p>
+                            </div>
 
-            <div class="p-3" style="text-align:left;background-color: white;width:300px;color:black;">
-                <h3>{{ voucher[1] }}</h3>
-                <p class="mt-4">
-                    {% if voucher[3] %}
-                    {{voucher[5]}}%
-                    {% else %}
-                    {{voucher[5]|myr}}
-                    {% endif %}
-                    OFF
-                </p>
-                <div style="border:1px solid red;padding:8px;margin-top:15px;border-radius:10px;width:260px;text-align: center">
-                    Min. Spend {{voucher[4]|myr}}
-                </div>
-                <p class="mt-4">Valid till {{voucher[7].strftime("%d %b")}}</p>
-            </div>
+                            <div class="p-3" style="text-align:left;background-color: white;width:300px;color:black;">
+                                <h3>{{ voucher[1] }}</h3>
+                                <p class="mt-4">
+                                    {% if voucher[3] %}
+                                        {{ voucher[5] }}%
+                                    {% else %}
+                                        {{ voucher[5]|myr }}
+                                    {% endif %}
+                                    OFF
+                                </p>
+                                <div style="border:1px solid red;padding:8px;margin-top:15px;border-radius:10px;width:260px;text-align: center">
+                                    Min. Spend {{ voucher[4]|myr }}
+                                </div>
+                                <p class="mt-4">Valid till {{ voucher[7].strftime("%d %b") }}</p>
+                            </div>
 
-            <div class="p-3" style="background-color: red;width:100px;color:black;display:flex;align-items: center">
-                <form action="/voucher" method="POST">
-                    <input type="hidden" name="id" value="{{voucher[0]}}">
-                    <button type="submit" style="background-color: #ff7ef3;">Claim</button>
-                </form>
+                            <div class="p-3"
+                                 style="background-color: red;width:100px;color:black;display:flex;align-items: center">
+                                <form action="/voucher" method="POST">
+                                    <input type="hidden" name="id" value="{{ voucher[0] }}">
+                                    <button type="submit" style="background-color: #ff7ef3;">Claim</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
         </div>
-    </div>
-    {% endfor %}
-</div>
-{% else %}
+    {% else %}
 
-<h4 class="mt-5 text-danger">No Voucher Available</h4>
+        <h4 class="mt-5 text-danger">No Voucher Available</h4>
 
-{% endif %}
+    {% endif %}
 {% endblock %}
