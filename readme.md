@@ -251,3 +251,13 @@ and getting inaccurate data.
 
 `$ flask start`
 
+> Create .env file in the main directory and put these key and values inside
+
+`mysql_host = `
+
+`mysql_user = `
+
+`mysql_password = `
+
+`mysql_db = `
+
