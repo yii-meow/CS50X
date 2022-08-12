@@ -1,8 +1,8 @@
 # Yimmerce Web Applicaion
 
-## Video Demo :
+### Video Demo :
 
-## Description
+### Description
 
 This is an E-commerce web application which is build
 by using Python Flask as backend, and
@@ -14,13 +14,17 @@ the most importance thing is the buying/selling products. By using this web appl
 all the tedious process such as recording down the order details manually on
 a book can be eliminated. What's more is that, there are plenty of useful features, such as
 a live chat between user and seller, vouchers for discounting price, and user wallet for paying.
-
 ---
 
-## Table of Content
+### Table of Content
 
 - [User](#User)
 - [Admin](#Admin)
+- [Validation](#Validation)
+- [ERD](#Entity Relationship Diagram (ERD))
+- [Setting Up Project](#Setting Up This Project)
+
+---
 
 #### User
 
