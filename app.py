@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
@@ -11,10 +12,10 @@ from helpers import err, require_login, require_seller_login, myr
 app = Flask(__name__)
 
 # database configuration
-app.config['MYSQL_HOST'] = "localhost"
-app.config['MYSQL_USER'] = "root"
-app.config['MYSQL_PASSWORD'] = ""
-app.config['MYSQL_DB'] = "yimmerce"
+app.config['MYSQL_HOST'] = os.getenv("mysql_host")
+app.config['MYSQL_USER'] = os.getenv("mysql_user")
+app.config['MYSQL_PASSWORD'] = os.getenv("mysql_password")
+app.config['MYSQL_DB'] = os.getenv("mysql_db")
 mysql = MySQL(app)
 
 # Auto Reload File

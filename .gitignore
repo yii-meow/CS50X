@@ -4,3 +4,4 @@ venv
 .idea
 .gitignore
 __pycache__
+.env
