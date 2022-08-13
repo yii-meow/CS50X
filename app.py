@@ -774,7 +774,7 @@ def seller_login():
         cursor.close()
 
         # Check password matching
-        if not seller or not (seller[2] == request.form.get("password")):
+        if not seller or not (check_password_hash(seller[2], request.form.get("password"))):
             return err("Wrong username / password", 400)
 
         flash("Login Successful!")
