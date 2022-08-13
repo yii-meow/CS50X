@@ -500,7 +500,7 @@ CREATE TABLE `seller` (
 --
 
 INSERT INTO `seller` (`id`, `username`, `password_hash`) VALUES
-(1, 'yiyi', 'yiyi');
+(1, 'yiyi', 'pbkdf2:sha256:260000$3cwSnkiWJTOQYTn4$28eabb6858e3a8def442c274d1228621d4e3be7097565edbd76d0d3572b09031');
 
 -- --------------------------------------------------------
 
