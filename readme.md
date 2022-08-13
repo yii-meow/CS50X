@@ -260,3 +260,10 @@ and getting inaccurate data.
 `mysql_db=yimmerce`
 
 `$ flask start`
+
+> Seller Default Username & Password
+
+`username: yiyi`
+
+`passowrd: yiyi`
+
