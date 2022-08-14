@@ -2,6 +2,5 @@ flask_session
 venv
 .gitattributes
 .idea
-.gitignore
 __pycache__
 .env
