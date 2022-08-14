@@ -243,7 +243,7 @@ and getting inaccurate data.
 
 `mysql> use yimmerce`
 
-> copy yimmerce.sql into mysql terminal
+> copy yimmerce.sql into mysql terminal [SQL](yimmerce.sql)
 
 `mysql> exit`
 
@@ -259,7 +259,7 @@ and getting inaccurate data.
 
 `MYSQL_DB=yimmerce`
 
-`$ flask run`
+`$ sudo flask run`
 
 > Seller Default Username & Password
 
