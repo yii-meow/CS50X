@@ -239,7 +239,7 @@ and getting inaccurate data.
 
 `$ sudo mysql -uroot`
 
-`mysql> create schema yimmerce`
+`mysql> create schema yimmerce;`
 
 `mysql> use yimmerce`
 
@@ -251,15 +251,15 @@ and getting inaccurate data.
 
 > Create .env file in the main directory and put these keys and values inside it, you can change it to your own settings as well, these are the default values
 
-`mysql_host=localhost`
+`MYSQL_HOST=localhost`
 
-`mysql_user=root`
+`MYSQL_USER=root`
 
-`mysql_password=`
+`MYSQL_PASSWORD=`
 
-`mysql_db=yimmerce`
+`MYSQL_DB=yimmerce`
 
-`$ flask start`
+`$ flask run`
 
 > Seller Default Username & Password
 
